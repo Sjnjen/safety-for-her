@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safe For Her SA | Women's Safety in South Africa</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <!-- Loading Animation -->
+    <div class="loader">
+        <div class="heart-beat">
+            <i class="fas fa-heart"></i>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1><i class="fas fa-shield-alt"></i> Safe For Her <span>SA</span></h1>
+                <p>by Vhuthu Ndou</p>
+            </div>
+            <div class="crime-alert" id="crimeAlert">
+                <span class="alert-icon"><i class="fas fa-exclamation-triangle"></i></span>
+                <span class="alert-text">Loading crime statistics...</span>
+                <span class="alert-date"></span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#home" class="active"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#map"><i class="fas fa-map-marked-alt"></i> Safety Map</a></li>
+                    <li><a href="#news"><i class="fas fa-newspaper"></i> News</a></li>
+                    <li><a href="#resources"><i class="fas fa-hands-helping"></i> Resources</a></li>
+                    <li><a href="#report"><i class="fas fa-flag"></i> Report</a></li>
+                </ul>
+            </nav>
+            <div class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h2>Your Safety Matters</h2>
+                <p>We're committed to helping women in South Africa stay safe and informed about potential dangers in their area.</p>
+                <div class="cta-buttons">
+                    <a href="#map" class="btn primary-btn"><i class="fas fa-map-marker-alt"></i> View Safety Map</a>
+                    <button id="trackMeBtn" class="btn secondary-btn"><i class="fas fa-location-arrow"></i> Track Me</button>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="floating">
+                    <img src="assets/woman_safe.svg" alt="Woman feeling safe">
+                </div>
+            </div>
+        </div>
+        <div class="wave"></div>
+    </section>
+
+    <!-- Safety Map Section -->
+    <section class="map-section" id="map">
+        <div class="container">
+            <h2><i class="fas fa-map-marked-alt"></i> Safety Map</h2>
+            <p>View reported incidents in your area to stay informed about potential dangers.</p>
+            <div class="map-container">
+                <div id="safetyMap"></div>
+                <div class="map-legend">
+                    <h4>Legend:</h4>
+                    <div class="legend-item"><span class="legend-icon assault"></span> Assault</div>
+                    <div class="legend-item"><span class="legend-icon harassment"></span> Harassment</div>
+                    <div class="legend-item"><span class="legend-icon theft"></span> Theft</div>
+                    <div class="legend-item"><span class="legend-icon other"></span> Other</div>
+                </div>
+            </div>
+            <div class="location-status">
+                <p id="locationStatus"><i class="fas fa-sync-alt fa-spin"></i> Detecting your location...</p>
+                <button id="refreshLocation" class="btn small-btn"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- News Section -->
+    <section class="news-section" id="news">
+        <div class="container">
+            <h2><i class="fas fa-newspaper"></i> Latest News</h2>
+            <p>Stay updated with recent incidents and safety news affecting women in South Africa.</p>
+            <div class="news-filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="assault">Assault</button>
+                <button class="filter-btn" data-filter="harassment">Harassment</button>
+                <button class="filter-btn" data-filter="safety-tips">Safety Tips</button>
+            </div>
+            <div class="news-grid" id="newsGrid">
+                <!-- News articles will be loaded here dynamically -->
+                <div class="news-loader">
+                    <i class="fas fa-spinner fa-spin"></i> Loading news...
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resources Section -->
+    <section class="resources-section" id="resources">
+        <div class="container">
+            <h2><i class="fas fa-hands-helping"></i> Resources & Help</h2>
+            <p>Immediate help contacts and resources for women in distress.</p>
+            
+            <div class="resources-grid">
+                <div class="resource-card emergency">
+                    <div class="resource-icon">
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <h3>Emergency Contacts</h3>
+                    <ul>
+                        <li><strong>Police Emergency:</strong> 10111</li>
+                        <li><strong>Ambulance:</strong> 10177</li>
+                        <li><strong>GBV Command Centre:</strong> 0800 428 428</li>
+                        <li><strong>Lifeline:</strong> 0861 322 322</li>
+                    </ul>
+                </div>
+                
+                <div class="resource-card shelters">
+                    <div class="resource-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <h3>Safe Shelters</h3>
+                    <ul>
+                        <li><strong>People Opposing Women Abuse (POWA):</strong> 011 642 4345</li>
+                        <li><strong>TEARS Foundation:</strong> *134*7355#</li>
+                        <li><strong>Saartjie Baartman Centre:</strong> 021 633 5287</li>
+                    </ul>
+                </div>
+                
+                <div class="resource-card legal">
+                    <div class="resource-icon">
+                        <i class="fas fa-gavel"></i>
+                    </div>
+                    <h3>Legal Assistance</h3>
+                    <ul>
+                        <li><strong>Legal Aid SA:</strong> 0800 110 110</li>
+                        <li><strong>Women's Legal Centre:</strong> 021 424 5660</li>
+                        <li><strong>Commission for Gender Equality:</strong> 0800 007 709</li>
+                    </ul>
+                </div>
+                
+                <div class="resource-card apps">
+                    <div class="resource-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Safety Apps</h3>
+                    <ul>
+                        <li><strong>Namola:</strong> Emergency response app</li>
+                        <li><strong>BSafe:</strong> Personal safety app</li>
+                        <li><strong>Hollie Guard:</strong> Smartphone panic button</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="safety-tips">
+                <h3><i class="fas fa-lightbulb"></i> Safety Tips</h3>
+                <div class="tips-slider">
+                    <div class="tip active">
+                        <p>Always share your live location with trusted contacts when traveling alone.</p>
+                    </div>
+                    <div class="tip">
+                        <p>Trust your instincts - if a situation feels unsafe, remove yourself immediately.</p>
+                    </div>
+                    <div class="tip">
+                        <p>Program emergency numbers into your phone for quick access.</p>
+                    </div>
+                    <div class="tip">
+                        <p>When walking alone, stay in well-lit areas and avoid distractions like phones.</p>
+                    </div>
+                </div>
+                <div class="slider-dots">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Report Section -->
+    <section class="report-section" id="report">
+        <div class="container">
+            <h2><i class="fas fa-flag"></i> Report an Incident</h2>
+            <p>Help keep other women safe by reporting incidents you've witnessed or experienced.</p>
+            
+            <div class="report-container">
+                <div class="report-form">
+                    <form id="incidentReportForm">
+                        <div class="form-group">
+                            <label for="incidentType">Incident Type</label>
+                            <select id="incidentType" required>
+                                <option value="">Select type</option>
+                                <option value="assault">Assault</option>
+                                <option value="harassment">Harassment</option>
+                                <option value="theft">Theft</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="incidentLocation">Location</label>
+                            <input type="text" id="incidentLocation" placeholder="Where did it happen?" required>
+                            <button type="button" id="useCurrentLocation" class="btn small-btn"><i class="fas fa-location-arrow"></i> Use My Location</button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="incidentDate">Date & Time</label>
+                            <input type="datetime-local" id="incidentDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="incidentDescription">Description</label>
+                            <textarea id="incidentDescription" rows="4" placeholder="Describe what happened..." required></textarea>
+                        </div>
+                        
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="anonymousReport">
+                            <label for="anonymousReport">Report anonymously</label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn primary-btn"><i class="fas fa-paper-plane"></i> Submit Report</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="report-info">
+                    <h3><i class="fas fa-info-circle"></i> About Reporting</h3>
+                    <p>Your reports help us create a safer community by identifying danger zones and patterns of crime against women.</p>
+                    
+                    <div class="report-guidelines">
+                        <h4><i class="fas fa-clipboard-list"></i> Reporting Guidelines</h4>
+                        <ul>
+                            <li>Provide as much detail as possible without compromising your safety</li>
+                            <li>For emergencies, always contact the police first</li>
+                            <li>False reports are illegal and harm the community</li>
+                            <li>You can choose to report anonymously</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="report-confidentiality">
+                        <h4><i class="fas fa-lock"></i> Confidentiality</h4>
+                        <p>We take your privacy seriously. Personal information is protected and anonymous reports are respected.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Track Me Modal -->
+    <div class="modal" id="trackMeModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2><i class="fas fa-location-arrow"></i> Share Your Location</h2>
+            <p>Allow trusted contacts to see your real-time location for safety purposes.</p>
+            
+            <div class="track-status" id="trackStatus">
+                <div class="status-icon">
+                    <i class="fas fa-location-slash"></i>
+                </div>
+                <p>Location sharing is currently inactive</p>
+            </div>
+            
+            <div class="track-options">
+                <button id="startTracking" class="btn primary-btn"><i class="fas fa-play"></i> Start Sharing</button>
+                <button id="stopTracking" class="btn secondary-btn" disabled><i class="fas fa-stop"></i> Stop Sharing</button>
+            </div>
+            
+            <div class="share-with">
+                <h3><i class="fas fa-user-friends"></i> Share With</h3>
+                <div class="contacts-list">
+                    <div class="contact-item">
+                        <div class="contact-info">
+                            <img src="assets/avatar1.png" alt="Contact avatar">
+                            <span>Sarah M.</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" class="share-toggle" data-contact="1">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-info">
+                            <img src="assets/avatar2.png" alt="Contact avatar">
+                            <span>Nomvula K.</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" class="share-toggle" data-contact="2">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-info">
+                            <img src="assets/avatar3.png" alt="Contact avatar">
+                            <span>Lerato P.</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" class="share-toggle" data-contact="3">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <button id="addContact" class="btn small-btn"><i class="fas fa-plus"></i> Add Contact</button>
+            </div>
+            
+            <div class="tracking-duration">
+                <h3><i class="fas fa-clock"></i> Duration</h3>
+                <select id="trackingTime">
+                    <option value="1">1 hour</option>
+                    <option value="2">2 hours</option>
+                    <option value="4">4 hours</option>
+                    <option value="8">8 hours</option>
+                    <option value="24">24 hours</option>
+                    <option value="0" selected>Until I turn it off</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <h3><i class="fas fa-shield-alt"></i> Safe For Her SA</h3>
+                    <p>Dedicated to creating safer communities for women in South Africa through awareness, resources, and technology.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#home"><i class="fas fa-chevron-right"></i> Home</a></li>
+                        <li><a href="#map"><i class="fas fa-chevron-right"></i> Safety Map</a></li>
+                        <li><a href="#news"><i class="fas fa-chevron-right"></i> News</a></li>
+                        <li><a href="#resources"><i class="fas fa-chevron-right"></i> Resources</a></li>
+                        <li><a href="#report"><i class="fas fa-chevron-right"></i> Report</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contact">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> info@safeforhersa.org.za</li>
+                        <li><i class="fas fa-phone"></i> 0800 555 1234</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Johannesburg, South Africa</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; <span id="currentYear"></span> Safe For Her SA by Vhuthu Ndou. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="back-to-top"><i class="fas fa-arrow-up"></i></button>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
