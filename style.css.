@@ -1,0 +1,188 @@
+/* Updated CSS with new additions */
+:root {
+    --primary-color: #e83e8c;
+    --primary-dark: #c2185b;
+    --primary-light: #f8bbd0;
+    --secondary-color: #6a1b9a;
+    --accent-color: #ff4081;
+    --emergency-color: #ff0000;
+    --text-color: #333;
+    --light-text: #666;
+    --lighter-text: #999;
+    --bg-color: #fff;
+    --light-bg: #f9f9f9;
+    --dark-bg: #2c3e50;
+    --danger-color: #e53935;
+    --warning-color: #ffb300;
+    --success-color: #43a047;
+    --info-color: #1e88e5;
+    --hospital-color: #4caf50;
+    --police-color: #2196f3;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+/* ... (keep all existing CSS rules) ... */
+
+/* Emergency Call Button */
+.emergency-btn {
+    background-color: var(--emergency-color);
+    color: white;
+    margin-top: 15px;
+    width: 100%;
+    animation: pulse 2s infinite;
+}
+
+.emergency-btn:hover {
+    background-color: #cc0000;
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+}
+
+/* Call Links */
+.call-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: var(--transition);
+    display: inline-block;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+.call-link:hover {
+    background-color: var(--primary-light);
+    color: var(--primary-dark);
+}
+
+/* Map Legend Positioning */
+.map-legend {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    z-index: 1000;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* Additional Legend Items */
+.legend-icon.hospital {
+    background-color: var(--hospital-color);
+}
+
+.legend-icon.police {
+    background-color: var(--police-color);
+}
+
+/* Contact List in Modal */
+.contacts-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.contact-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.contact-item:last-child {
+    border-bottom: none;
+}
+
+.contact-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.add-contact-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.add-contact-form input {
+    flex: 1;
+    min-width: 120px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .hero-content {
+        margin-bottom: 30px;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .map-legend {
+        top: 10px;
+        right: 10px;
+        max-width: 150px;
+        font-size: 0.8rem;
+    }
+    
+    .legend-item {
+        margin-bottom: 3px;
+    }
+    
+    .location-status {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    #refreshLocation {
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .modal-content {
+        width: 95%;
+        padding: 15px;
+    }
+    
+    .track-options {
+        flex-direction: column;
+    }
+    
+    .add-contact-form {
+        flex-direction: column;
+    }
+    
+    .add-contact-form input {
+        width: 100%;
+    }
+}
+
+/* Larger screens */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1300px;
+    }
+}
+    
