@@ -458,7 +458,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let isTracking = false;
     
     // Load saved contacts from localStorage
-    let contacts = JSON.parse(localStorage.getItem('safetyContacts') || [];
+    let contacts = JSON.parse(localStorage.getItem('safetyContacts') || []);
     
     // Render contacts
     function renderContacts() {
@@ -775,4 +775,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize the map after everything else is loaded
     initMap();
-});
+
+
+async function fetchNews() {
+  const apiKey = '7fac3b97d112424f9c4b4e86674ee384'; // ← Paste your key here
+  const response = await fetch(
+    `https://newsapi.org/v2/everything?q=("women safety" OR "gender violence") AND "South Africa"&sortBy=publishedAt&pageSize=6&apiKey=${apikey}`
+  );
+  const data = await response.json();
+  return data.articles;
+}});
