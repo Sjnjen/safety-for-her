@@ -46,8 +46,14 @@ app.get('/api/incidents', (req, res) => {
 
 // ==================== REPORT NEW INCIDENT ====================
 app.post('/api/incidents', (req, res) => {
-    const { type, location, description, anonymous } = req.body;
-    
+    const {
+    type,
+    location,
+    description,
+    anonymous,
+    lat,
+    lng
+} = req.body;
     // Validation
     if (!type) {
         return res.status(400).json({ success: false, error: 'Incident type is required' });
