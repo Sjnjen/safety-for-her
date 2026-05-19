@@ -66,14 +66,15 @@ app.post('/api/incidents', (req, res) => {
     }
     
     const newIncident = {
-        id: incidents.length + 1,
-        type: type,
-        location: location,
-        description: description,
-        anonymous: anonymous || false,
-        timestamp: new Date().toISOString()
-    };
-    
+    id: incidents.length + 1,
+    type: type,
+    location: location,
+    description: description,
+    anonymous: anonymous || false,
+    lat: lat,
+    lng: lng,
+    timestamp: new Date().toISOString()
+};
     incidents.push(newIncident);
     
     console.log(`📝 New incident reported: ${type} at ${location}`);
