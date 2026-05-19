@@ -1164,6 +1164,7 @@
     <div class="toast" id="toast"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
     <script>
         // ==================== INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', () => {
@@ -1237,22 +1238,7 @@
             }).addTo(map);
             
             // Incident markers
-            const incidents = [
-                { type: 'assault', lat: -26.1941, lng: 28.0373, desc: 'Assault reported near Park Station', date: '2026-04-16' },
-                { type: 'harassment', lat: -26.2141, lng: 28.0573, desc: 'Verbal harassment at Sandton City', date: '2026-04-15' },
-                { type: 'theft', lat: -26.1841, lng: 28.0273, desc: 'Phone snatched in Braamfontein', date: '2026-04-14' }
-            ];
-            
-            const icons = { assault: '#ff0000', harassment: '#ff9800', theft: '#9c27b0' };
-            
-            incidents.forEach(inc => {
-                L.marker([inc.lat, inc.lng], {
-                    icon: L.divIcon({ 
-                        html: `<div style="background: ${icons[inc.type]}; width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 5px ${icons[inc.type]};"></div>`,
-                        iconSize: [12, 12]
-                    })
-                }).bindPopup(`<b>${inc.type.toUpperCase()}</b><br>${inc.desc}<br><small>${inc.date}</small>`).addTo(map);
-            });
+            loadIncidents();
             
             // Hospitals
             const hospitals = [
@@ -1278,7 +1264,81 @@
             
             document.getElementById('refreshLocation')?.addEventListener('click', getUserLocation);
         }
-        
+        async function loadIncidents() {
+
+    try {
+
+        const response = await fetch('http://localhost:3000/api/incidents');
+
+        const data = await response.json();
+
+        const heatPoints = [];
+
+        data.incidents.forEach(inc => {
+
+            addIncidentMarker(inc);
+
+            heatPoints.push([
+                inc.lat,
+                inc.lng,
+                0.8
+            ]);
+
+        });
+
+        L.heatLayer(heatPoints, {
+            radius: 35,
+            blur: 25,
+            maxZoom: 17,
+            gradient: {
+                0.2: 'green',
+                0.5: 'orange',
+                0.8: 'red'
+            }
+        }).addTo(map);
+
+    } catch (error) {
+
+        console.error('Failed to load incidents:', error);
+
+    }
+
+}
+
+function addIncidentMarker(inc) {
+
+    const colors = {
+        assault: '#ff0000',
+        harassment: '#ff9800',
+        theft: '#9c27b0',
+        stalking: '#ff0055',
+        other: '#666'
+    };
+
+    L.marker([inc.lat, inc.lng], {
+
+        icon: L.divIcon({
+            html: `
+                <div style="
+                    background:${colors[inc.type] || '#666'};
+                    width:14px;
+                    height:14px;
+                    border-radius:50%;
+                    box-shadow:0 0 15px ${colors[inc.type] || '#666'};
+                "></div>
+            `,
+            iconSize:[14,14]
+        })
+
+    })
+    .bindPopup(`
+        <b>${inc.type.toUpperCase()}</b><br>
+        ${inc.description}<br>
+        <small>${new Date(inc.timestamp).toLocaleString()}</small>
+    `)
+    .addTo(map);
+
+}
         function getUserLocation() {
             const status = document.getElementById('locationStatus');
             status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting your location...';
