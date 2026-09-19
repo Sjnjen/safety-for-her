@@ -1,1624 +1,1867 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#e83e8c">
-    <meta name="description" content="South Africa's leading women's safety platform - Real-time incident mapping, emergency response, and live location sharing">
-    <title>Safe For Her SA | Premium Women's Safety Platform 2026</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #e83e8c;
-            --primary-dark: #c2185b;
-            --primary-light: #f8bbd0;
-            --secondary: #6a1b9a;
-            --danger: #ff0000;
-            --danger-dark: #cc0000;
-            --success: #00c853;
-            --warning: #ff9800;
-            --dark: #1a1a2e;
-            --gray: #6c757d;
-            --light-gray: #f8f9fa;
-            --white: #ffffff;
-            --shadow: 0 10px 40px rgba(0,0,0,0.1);
-            --shadow-lg: 0 20px 60px rgba(0,0,0,0.15);
-            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            color: #333;
-            background: var(--white);
-            overflow-x: hidden;
-        }
-
-        /* Quick Exit */
-        .quick-exit {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #ff4444;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 700;
-            z-index: 10000;
-            box-shadow: var(--shadow-lg);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-
-        .quick-exit:hover {
-            background: #cc0000;
-            transform: scale(1.05);
-        }
-
-        /* Header */
-        header {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: var(--shadow);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            padding: 15px 0;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .logo h1 {
-            font-size: 1.8rem;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .logo p {
-            font-size: 0.8rem;
-            color: var(--gray);
-        }
-
-        .crime-ticker {
-            background: linear-gradient(135deg, #ffebee, #ffcdd2);
-            padding: 8px 20px;
-            border-radius: 50px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: slideIn 0.5s ease;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(100px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .ticker-icon {
-            color: var(--danger);
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        nav ul {
-            display: flex;
-            gap: 30px;
-            list-style: none;
-        }
-
-        nav ul li a {
-            text-decoration: none;
-            color: #333;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        nav ul li a:hover, nav ul li a.active {
-            color: var(--primary);
-        }
-
-        .mobile-menu {
-            display: none;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
-            padding: 160px 0 100px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 50px;
-            align-items: center;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-content h2 {
-            font-size: 3.5rem;
-            color: white;
-            margin-bottom: 20px;
-            font-weight: 800;
-        }
-
-        .hero-content p {
-            font-size: 1.2rem;
-            color: rgba(255,255,255,0.9);
-            margin-bottom: 30px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 14px 32px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        .btn-primary {
-            background: var(--white);
-            color: var(--primary);
-            box-shadow: var(--shadow);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: white;
-            border: 2px solid white;
-        }
-
-        .btn-secondary:hover {
-            background: white;
-            color: var(--primary);
-            transform: translateY(-3px);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-            animation: btnPulse 2s infinite;
-        }
-
-        .btn-warning {
-            background: #25D366;
-            color: white;
-        }
-
-        @keyframes btnPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
-            50% { box-shadow: 0 0 0 15px rgba(255,0,0,0); }
-        }
-
-        .hero-image {
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .hero-image img {
-            width: 100%;
-            max-width: 400px;
-            border-radius: 30px;
-            box-shadow: var(--shadow-lg);
-        }
-
-        /* SOS Button */
-        .sos-button {
-            position: fixed;
-            bottom: 30px;
-            left: 30px;
-            width: 80px;
-            height: 80px;
-            background: var(--danger);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 32px;
-            cursor: pointer;
-            z-index: 999;
-            box-shadow: 0 0 0 0 rgba(255,0,0,0.7);
-            animation: sosPulse 1.5s infinite;
-            transition: all 0.3s ease;
-        }
-
-        @keyframes sosPulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(255,0,0,0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,0,0,0); }
-        }
-
-        .sos-button:hover {
-            transform: scale(1.1);
-        }
-
-        /* Map Section */
-        .map-section {
-            padding: 80px 0;
-            background: var(--light-gray);
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .section-title h2 {
-            font-size: 2.8rem;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 15px;
-        }
-
-        .section-title p {
-            color: var(--gray);
-            font-size: 1.1rem;
-        }
-
-        .map-container {
-            position: relative;
-            height: 500px;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
-        }
-
-        #safetyMap {
-            height: 100%;
-            width: 100%;
-        }
-
-        .map-controls {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            z-index: 1000;
-            min-width: 200px;
-        }
-
-        .map-controls h4 {
-            margin-bottom: 15px;
-            color: var(--primary);
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-        }
-
-        .legend-color {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-        }
-
-        .legend-color.assault { background: #ff0000; box-shadow: 0 0 5px #ff0000; }
-        .legend-color.harassment { background: #ff9800; box-shadow: 0 0 5px #ff9800; }
-        .legend-color.theft { background: #9c27b0; box-shadow: 0 0 5px #9c27b0; }
-        .legend-color.hospital { background: #4caf50; box-shadow: 0 0 5px #4caf50; }
-        .legend-color.police { background: #2196f3; box-shadow: 0 0 5px #2196f3; }
-        .legend-color.safe { background: #00c853; box-shadow: 0 0 5px #00c853; }
-
-        .location-status {
-            margin-top: 20px;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        /* Tracking Section */
-        .tracking-section {
-            padding: 80px 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .tracking-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        .tracking-card {
-            background: rgba(255,255,255,0.95);
-            padding: 30px;
-            border-radius: 20px;
-            color: #333;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .tracking-card:hover {
-            transform: translateY(-10px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .tracking-icon {
-            width: 80px;
-            height: 80px;
-            background: var(--gradient);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 32px;
-            color: white;
-        }
-
-        .share-link {
-            background: #f0f0f0;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            word-break: break-all;
-            font-size: 12px;
-        }
-
-        .whatsapp-share {
-            background: #25D366;
-            color: white;
-            border: none;
-        }
-
-        /* News Section */
-        .news-section {
-            padding: 80px 0;
-            background: white;
-        }
-
-        .news-filters {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 10px 25px;
-            border-radius: 50px;
-            border: none;
-            background: var(--light-gray);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-        }
-
-        .filter-btn.active, .filter-btn:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .news-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 30px;
-        }
-
-        .news-card {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
-        }
-
-        .news-card:hover {
-            transform: translateY(-10px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .news-image {
-            height: 220px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .news-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-
-        .news-card:hover .news-image img {
-            transform: scale(1.05);
-        }
-
-        .news-category {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: white;
-        }
-
-        .news-category.assault { background: #ff0000; }
-        .news-category.harassment { background: #ff9800; }
-        .news-category.safety { background: #00c853; }
-
-        .news-content {
-            padding: 20px;
-        }
-
-        .news-title {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .news-excerpt {
-            color: var(--gray);
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-            line-height: 1.5;
-        }
-
-        .news-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-            color: var(--gray);
-        }
-
-        .read-more {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        /* Resources Section */
-        .resources-section {
-            padding: 80px 0;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        }
-
-        .resources-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-
-        .resource-card {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .resource-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 5px;
-            height: 100%;
-        }
-
-        .resource-card.emergency::before { background: var(--danger); }
-        .resource-card.shelter::before { background: var(--primary); }
-        .resource-card.legal::before { background: var(--secondary); }
-
-        .resource-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .resource-icon {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            color: white;
-            margin-bottom: 20px;
-        }
-
-        .resource-card.emergency .resource-icon { background: var(--danger); }
-        .resource-card.shelter .resource-icon { background: var(--primary); }
-        .resource-card.legal .resource-icon { background: var(--secondary); }
-
-        .resource-card h3 {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-        }
-
-        .resource-card ul {
-            list-style: none;
-        }
-
-        .resource-card ul li {
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .call-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-
-        /* Safety Tips Slider */
-        .safety-tips {
-            margin-top: 60px;
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-        }
-
-        .tips-slider {
-            position: relative;
-            height: 120px;
-            overflow: hidden;
-        }
-
-        .tip {
-            position: absolute;
-            width: 100%;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            text-align: center;
-            font-size: 1.2rem;
-            color: var(--dark);
-            font-weight: 500;
-        }
-
-        .tip.active {
-            opacity: 1;
-        }
-
-        .slider-dots {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--primary-light);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .dot.active {
-            background: var(--primary);
-            width: 30px;
-            border-radius: 10px;
-        }
-
-        /* Modal */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 500px;
-            padding: 30px;
-            position: relative;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        /* Footer */
-        footer {
-            background: var(--dark);
-            color: white;
-            padding: 60px 0 30px;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-            margin-bottom: 40px;
-        }
-
-        .footer-links ul {
-            list-style: none;
-        }
-
-        .footer-links ul li {
-            margin-bottom: 12px;
-        }
-
-        .footer-links ul li a {
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .footer-links ul li a:hover {
-            color: var(--primary);
-            padding-left: 5px;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .social-links a {
-            width: 45px;
-            height: 45px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            transition: all 0.3s ease;
-            font-size: 1.2rem;
-        }
-
-        .social-links a:hover {
-            background: var(--primary);
-            transform: translateY(-3px);
-        }
-
-        .footer-bottom {
-            text-align: center;
-            padding-top: 30px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-
-        /* Back to Top */
-        .back-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            background: var(--primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            cursor: pointer;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 998;
-            box-shadow: var(--shadow);
-        }
-
-        .back-to-top.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 100px;
-            right: 20px;
-            background: #333;
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            z-index: 1000;
-            display: none;
-            animation: slideInRight 0.3s ease;
-        }
-
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .mobile-menu {
-                display: block;
-            }
-            
-            nav {
-                position: fixed;
-                top: 80px;
-                left: -100%;
-                width: 80%;
-                height: calc(100vh - 80px);
-                background: white;
-                box-shadow: var(--shadow-lg);
-                transition: all 0.3s ease;
-                z-index: 999;
-                padding: 20px;
-            }
-            
-            nav.active {
-                left: 0;
-            }
-            
-            nav ul {
-                flex-direction: column;
-                gap: 20px;
-            }
-            
-            .hero .container {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-            
-            .hero-content h2 {
-                font-size: 2rem;
-            }
-            
-            .btn-group {
-                justify-content: center;
-            }
-            
-            .map-controls {
-                top: 10px;
-                right: 10px;
-                font-size: 0.8rem;
-                min-width: 150px;
-                padding: 10px;
-            }
-            
-            .sos-button {
-                bottom: 20px;
-                left: 20px;
-                width: 60px;
-                height: 60px;
-                font-size: 24px;
-            }
-            
-            .news-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#C2185B">
+<meta name="description" content="Safe For Her SA — a calm, professional safety platform for women and children in South Africa. Emergency resources, a live safety map, and incident reporting.">
+<title>Safe For Her SA — Safety Resources &amp; Reporting</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style id="leaflet-styles">
+/* required styles */
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+/* Prevents IE11 from highlighting tiles in blue */
+.leaflet-tile::selection {
+	background: transparent;
+}
+/* Safari renders non-retina tile on retina better with this, but Chrome is worse */
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+/* hack that prevents hw layers "stretching" when loading new tiles */
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+/* .leaflet-container svg: reset svg max-width decleration shipped in Joomla! (joomla.org) 3.x */
+/* .leaflet-container img: map is broken in FF if you have max-width: 100% on tiles */
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+
+.leaflet-container img.leaflet-tile {
+	/* See: https://bugs.chromium.org/p/chromium/issues/detail?id=600120 */
+	mix-blend-mode: plus-lighter;
+}
+
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	/* Fallback for FF which doesn't support pinch-zoom */
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+/* workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=888319 */
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+
+.leaflet-pane         { z-index: 400; }
+
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+.lvml {
+	behavior: url(#default#VML);
+	display: inline-block;
+	position: absolute;
+	}
+
+
+/* control positioning */
+
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+
+
+/* zoom and fade animations */
+
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+
+
+/* cursors */
+
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+
+/* marker & overlays interactivity */
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+
+/* visual tweaks */
+
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+
+
+/* general typography */
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+
+
+/* general toolbar styles */
+
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+
+/* zoom control */
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+
+
+/* layers control */
+
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-control-layers-toggle {
+	background-image: url(images/layers.png);
+	width: 36px;
+	height: 36px;
+	}
+.leaflet-retina .leaflet-control-layers-toggle {
+	background-image: url(images/layers-2x.png);
+	background-size: 26px 26px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+
+/* Default icon URLs */
+.leaflet-default-icon-path { /* used only in path-guessing heuristic, see L.Icon.Default */
+	background-image: url(images/marker-icon.png);
+	}
+
+
+/* attribution and scale controls */
+
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+
+
+/* popup */
+
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+
+	margin: -10px auto 0;
+	pointer-events: auto;
+
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+
+
+/* div icon */
+
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+
+
+/* Tooltip */
+/* Base styles for the element that has a tooltip */
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+
+/* Directions */
+
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+
+/* Printing */
+
+@media print {
+	/* Prevent printers from removing background-images of controls. */
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+
+</style>
+
+<style>
+/* ============================= DESIGN TOKENS ============================= */
+:root{
+  --bg:#FDF6F9;
+  --surface:#FFFFFF;
+  --surface-sunken:#FCEAF2;
+  --ink:#2B1620;
+  --ink-muted:#7A5A66;
+  --ink-faint:#AE8A96;
+  --border:#F3D9E6;
+  --primary:#C2185B;
+  --primary-dark:#8E1147;
+  --primary-tint:#FBE0EC;
+  --accent:#3E7C6B;
+  --accent-tint:#E4F0EB;
+  --alert:#A6291E;
+  --alert-tint:#FBEAE8;
+  --warning:#8A5A00;
+  --warning-tint:#FBF1DC;
+  --focus:#8E1147;
+  --radius-s:6px;
+  --radius-m:10px;
+  --radius-l:16px;
+  --shadow:0 1px 2px rgba(22,35,43,0.06), 0 4px 16px rgba(22,35,43,0.06);
+  --shadow-lg:0 8px 30px rgba(22,35,43,0.12);
+  --font-body:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-head:'Source Serif 4',Georgia,serif;
+  --header-h:64px;
+  --transition:180ms ease;
+}
+
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1D1418; --surface:#271A20; --surface-sunken:#231620;
+    --ink:#F6E9EF; --ink-muted:#CBA6B6; --ink-faint:#8F707C;
+    --border:#3A2530; --primary:#F06AA0; --primary-dark:#C2185B;
+    --primary-tint:#3A1D2A; --accent:#7FC7AE; --accent-tint:#183028;
+    --alert:#E5766B; --alert-tint:#331A17; --warning:#E0B24D; --warning-tint:#332810;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1D1418; --surface:#271A20; --surface-sunken:#231620;
+  --ink:#F6E9EF; --ink-muted:#CBA6B6; --ink-faint:#8F707C;
+  --border:#3A2530; --primary:#F06AA0; --primary-dark:#C2185B;
+  --primary-tint:#3A1D2A; --accent:#7FC7AE; --accent-tint:#183028;
+  --alert:#E5766B; --alert-tint:#331A17; --warning:#E0B24D; --warning-tint:#332810;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{animation-duration:0.001ms !important;animation-iteration-count:1 !important;transition-duration:0.001ms !important;}
+}
+body{
+  font-family:var(--font-body);
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block;}
+a{color:var(--primary);}
+h1,h2,h3,h4{font-family:var(--font-head);font-weight:600;line-height:1.2;color:var(--ink);}
+.container{width:92%;max-width:1180px;margin:0 auto;}
+section{padding:64px 0;}
+.section-head{max-width:640px;margin-bottom:36px;}
+.section-head h2{font-size:1.9rem;margin-bottom:10px;}
+.section-head p{color:var(--ink-muted);font-size:1rem;}
+.eyebrow{display:inline-block;font-size:0.78rem;font-weight:600;color:var(--primary);margin-bottom:8px;}
+
+.icon{width:1em;height:1em;display:inline-block;vertical-align:-0.15em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+
+.skip-link{
+  position:absolute;left:12px;top:-60px;background:var(--primary);color:#fff;
+  padding:10px 16px;border-radius:var(--radius-s);z-index:2000;transition:top var(--transition);
+}
+.skip-link:focus{top:12px;}
+
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;}
+button, a, input, select, textarea{font-family:inherit;}
+
+/* ============================= BUTTONS ============================= */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 22px;border-radius:var(--radius-s);
+  font-weight:600;font-size:0.95rem;border:1px solid transparent;
+  cursor:pointer;text-decoration:none;transition:background var(--transition),border-color var(--transition),transform var(--transition);
+  line-height:1;
+}
+.btn:active{transform:translateY(1px);}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{background:var(--primary-dark);}
+.btn-secondary{background:transparent;color:var(--primary);border-color:var(--primary);}
+.btn-secondary:hover{background:var(--primary-tint);}
+.btn-alert{background:var(--alert);color:#fff;}
+.btn-alert:hover{background:#8C2118;}
+.btn-ghost{background:var(--surface-sunken);color:var(--ink);}
+.btn-ghost:hover{background:var(--border);}
+.btn-block{width:100%;justify-content:center;}
+.btn-sm{padding:8px 14px;font-size:0.85rem;}
+
+/* ============================= QUICK EXIT ============================= */
+.quick-exit{
+  position:fixed;top:12px;right:12px;z-index:3000;
+  display:flex;align-items:center;gap:6px;
+  background:var(--alert);color:#fff;border:none;
+  padding:8px 14px;border-radius:999px;font-size:0.82rem;font-weight:700;
+  box-shadow:var(--shadow-lg);cursor:pointer;
+}
+.quick-exit:hover{background:#8C2118;}
+.quick-exit .icon{width:14px;height:14px;}
+
+/* ============================= HEADER ============================= */
+header{
+  position:sticky;top:0;z-index:1000;background:var(--surface);
+  border-bottom:1px solid var(--border);
+}
+.header-inner{
+  height:var(--header-h);display:flex;align-items:center;justify-content:space-between;gap:20px;
+}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);}
+.brand-mark{width:34px;height:34px;border-radius:8px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.brand-text h1{font-size:1.05rem;font-weight:700;font-family:var(--font-body);}
+.brand-text p{font-size:0.7rem;color:var(--ink-muted);}
+
+nav ul{list-style:none;display:flex;gap:4px;}
+nav a{
+  text-decoration:none;color:var(--ink-muted);font-weight:500;font-size:0.9rem;
+  padding:10px 12px;border-radius:var(--radius-s);transition:background var(--transition),color var(--transition);
+}
+nav a:hover,nav a.active{color:var(--primary);background:var(--primary-tint);}
+
+.header-actions{display:flex;align-items:center;gap:10px;}
+.mobile-menu-btn{display:none;background:none;border:none;color:var(--ink);cursor:pointer;padding:8px;}
+
+@media (max-width:860px){
+  nav{
+    position:fixed;top:var(--header-h);left:0;right:0;background:var(--surface);
+    border-bottom:1px solid var(--border);padding:12px 5%;
+    transform:translateY(-8px);opacity:0;visibility:hidden;
+    transition:opacity var(--transition),transform var(--transition),visibility var(--transition);
+  }
+  nav.open{transform:translateY(0);opacity:1;visibility:visible;}
+  nav ul{flex-direction:column;gap:2px;}
+  nav a{display:block;padding:12px;}
+  .mobile-menu-btn{display:block;}
+  .header-actions .btn-label{display:none;}
+}
+
+/* ============================= HERO ============================= */
+.hero{background:var(--primary-tint);border-bottom:1px solid var(--border);}
+.hero .container{
+  padding:56px 0 48px;display:grid;grid-template-columns:1.1fr 0.9fr;gap:48px;align-items:center;
+}
+.hero h2{font-size:2.4rem;margin-bottom:16px;max-width:15ch;}
+.hero p.lead{font-size:1.05rem;color:var(--ink-muted);max-width:48ch;margin-bottom:26px;}
+.hero .btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px;}
+.hero .reassure{display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--ink-muted);}
+.hero .reassure .icon{color:var(--accent);}
+
+.hero-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-l);padding:22px;box-shadow:var(--shadow);}
+.hero-panel h3{font-size:1rem;margin-bottom:14px;font-family:var(--font-body);font-weight:700;}
+.hero-emergency-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;border-bottom:1px solid var(--border);
+}
+.hero-emergency-row:last-child{border-bottom:none;}
+.hero-emergency-row .label{font-size:0.88rem;color:var(--ink-muted);}
+.hero-emergency-row .num{font-weight:700;color:var(--primary);text-decoration:none;font-size:0.98rem;}
+
+@media (max-width:860px){
+  .hero .container{grid-template-columns:1fr;padding:36px 0;}
+  .hero h2{font-size:1.9rem;max-width:none;}
+}
+
+/* ============================= EMERGENCY BAR (persistent, calm) ============================= */
+.emergency-fab{
+  position:fixed;bottom:20px;right:20px;z-index:900;
+  display:flex;align-items:center;gap:8px;
+  background:var(--alert);color:#fff;border:none;border-radius:999px;
+  padding:13px 18px;font-weight:700;font-size:0.88rem;box-shadow:var(--shadow-lg);cursor:pointer;
+}
+.emergency-fab:hover{background:#8C2118;}
+.emergency-fab .icon{width:18px;height:18px;}
+
+/* ============================= CARDS ============================= */
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-m);
+  padding:22px;
+}
+
+/* ============================= RESOURCES (Emergency) ============================= */
+.resources-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.resource-card{position:relative;padding-left:24px;}
+.resource-card::before{content:'';position:absolute;left:0;top:22px;bottom:22px;width:3px;border-radius:3px;}
+.resource-card.emergency::before{background:var(--alert);}
+.resource-card.support::before{background:var(--primary);}
+.resource-card.legal::before{background:var(--accent);}
+.resource-card h3{font-size:1.05rem;font-family:var(--font-body);font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.resource-card h3 .icon{width:18px;height:18px;color:var(--primary);}
+.resource-card ul{list-style:none;}
+.resource-card li{
+  display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  padding:9px 0;border-bottom:1px solid var(--border);font-size:0.9rem;flex-wrap:wrap;
+}
+.resource-card li:last-child{border-bottom:none;}
+.resource-card .call-link{font-weight:700;color:var(--primary);text-decoration:none;white-space:nowrap;}
+.resource-card .call-link:hover{text-decoration:underline;}
+
+@media (max-width:860px){.resources-grid{grid-template-columns:1fr;}}
+
+/* ============================= MAP ============================= */
+.map-wrap{
+  position:relative;border:1px solid var(--border);border-radius:var(--radius-l);overflow:hidden;
+  box-shadow:var(--shadow);
+}
+#safetyMap{height:480px;width:100%;background:var(--surface-sunken);touch-action:pan-y;}
+.map-legend{
+  position:absolute;top:14px;left:14px;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-m);padding:14px 16px;box-shadow:var(--shadow);z-index:500;font-size:0.82rem;max-width:200px;
+}
+.map-legend h4{font-size:0.78rem;font-family:var(--font-body);font-weight:700;margin-bottom:8px;color:var(--ink-muted);}
+.legend-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.map-status-bar{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  margin-top:14px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-m);font-size:0.85rem;
+}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:6px;}
+.status-dot.offline{background:var(--ink-faint);}
+.map-touch-hint{
+  position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  background:rgba(22,35,43,0.85);color:#fff;padding:8px 14px;border-radius:999px;font-size:0.8rem;
+  z-index:500;transition:opacity 400ms ease;pointer-events:none;
+}
+.map-touch-hint.hidden{opacity:0;}
+@media (min-width:861px){.map-touch-hint{display:none;}}
+
+/* ============================= NEWS ============================= */
+.news-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;}
+.news-updated{font-size:0.82rem;color:var(--ink-muted);display:flex;align-items:center;gap:6px;}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;}
+.filter-btn{
+  padding:7px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+  font-size:0.82rem;font-weight:500;cursor:pointer;color:var(--ink-muted);transition:background var(--transition),color var(--transition);
+}
+.filter-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.news-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-m);padding:18px;
+  animation:fadeIn 400ms ease;
+}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.news-card .tag{
+  display:inline-block;font-size:0.72rem;font-weight:700;padding:3px 9px;border-radius:999px;margin-bottom:10px;
+}
+.tag-safety{background:var(--accent-tint);color:var(--accent);}
+.tag-legal{background:var(--primary-tint);color:var(--primary);}
+.tag-alert{background:var(--alert-tint);color:var(--alert);}
+.news-card h3{font-size:1rem;font-family:var(--font-body);font-weight:700;margin-bottom:8px;line-height:1.35;}
+.news-card p{font-size:0.88rem;color:var(--ink-muted);margin-bottom:12px;}
+.news-card .meta{display:flex;justify-content:space-between;font-size:0.78rem;color:var(--ink-faint);align-items:center;}
+.news-empty{grid-column:1/-1;text-align:center;padding:40px;color:var(--ink-muted);}
+@media (max-width:860px){.news-grid{grid-template-columns:1fr;}}
+
+/* ============================= REPORT FORM ============================= */
+.report-layout{display:grid;grid-template-columns:1.1fr 0.9fr;gap:32px;align-items:start;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:0.86rem;font-weight:600;margin-bottom:6px;}
+.form-group .hint{font-size:0.78rem;color:var(--ink-faint);margin-top:4px;}
+.form-group input[type=text],
+.form-group input[type=datetime-local],
+.form-group select,
+.form-group textarea{
+  width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:var(--radius-s);
+  background:var(--surface);color:var(--ink);font-size:0.92rem;
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary);}
+.form-row{display:flex;gap:12px;}
+.form-row .form-group{flex:1;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.toggle-row:last-of-type{border-bottom:none;}
+.toggle-row .toggle-label{font-size:0.9rem;}
+.toggle-row .toggle-label small{display:block;color:var(--ink-faint);font-size:0.76rem;}
+.switch{position:relative;width:42px;height:24px;flex-shrink:0;}
+.switch input{opacity:0;width:0;height:0;}
+.switch .track{position:absolute;inset:0;background:var(--border);border-radius:999px;transition:background var(--transition);cursor:pointer;}
+.switch .track::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform var(--transition);}
+.switch input:checked + .track{background:var(--primary);}
+.switch input:checked + .track::before{transform:translateX(18px);}
+.report-notice{
+  display:flex;gap:10px;padding:14px 16px;background:var(--warning-tint);border:1px solid #E9D6A6;
+  border-radius:var(--radius-m);font-size:0.85rem;color:var(--warning);margin-bottom:20px;
+}
+.report-notice .icon{flex-shrink:0;margin-top:2px;}
+.report-sidebar .card{margin-bottom:16px;}
+.report-sidebar h4{font-size:0.92rem;margin-bottom:10px;}
+.report-sidebar ul{padding-left:18px;font-size:0.86rem;color:var(--ink-muted);}
+.report-sidebar li{margin-bottom:6px;}
+@media (max-width:860px){.report-layout{grid-template-columns:1fr;}.form-row{flex-direction:column;}}
+
+/* ============================= EDUCATION ============================= */
+.edu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.edu-card h3{font-size:1rem;font-family:var(--font-body);font-weight:700;margin-bottom:10px;display:flex;gap:8px;align-items:center;}
+.edu-card h3 .icon{color:var(--accent);width:18px;height:18px;}
+.edu-card ul{padding-left:18px;font-size:0.88rem;color:var(--ink-muted);}
+.edu-card li{margin-bottom:6px;}
+@media (max-width:860px){.edu-grid{grid-template-columns:1fr;}}
+
+/* ============================= STATUS BADGES ============================= */
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:0.74rem;font-weight:700;padding:3px 9px;border-radius:999px;}
+.badge-verified{background:var(--accent-tint);color:var(--accent);}
+.badge-unverified{background:var(--warning-tint);color:var(--warning);}
+.badge-alert{background:var(--alert-tint);color:var(--alert);}
+
+/* ============================= FOOTER ============================= */
+footer{background:var(--primary-dark);color:rgba(255,255,255,0.85);padding:48px 0 24px;margin-top:20px;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:36px;margin-bottom:32px;}
+.footer-grid h3{color:#fff;font-family:var(--font-body);font-size:0.95rem;margin-bottom:14px;}
+.footer-grid p{font-size:0.86rem;color:rgba(255,255,255,0.65);}
+.footer-grid ul{list-style:none;font-size:0.86rem;}
+.footer-grid li{margin-bottom:9px;}
+.footer-grid a{color:rgba(255,255,255,0.75);text-decoration:none;}
+.footer-grid a:hover{color:#fff;}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.15);padding-top:20px;font-size:0.8rem;color:rgba(255,255,255,0.55);text-align:center;}
+@media (max-width:860px){.footer-grid{grid-template-columns:1fr;}}
+
+/* ============================= TOAST ============================= */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:#fff;padding:12px 20px;border-radius:var(--radius-m);font-size:0.86rem;
+  z-index:4000;opacity:0;visibility:hidden;transition:opacity var(--transition),transform var(--transition);
+  box-shadow:var(--shadow-lg);max-width:90%;
+}
+.toast.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
+
+/* wide content never overflows page */
+.overflow-x{overflow-x:auto;}
+</style>
 </head>
 <body>
-    <!-- Quick Exit Button -->
-    <a href="https://www.weather.com" class="quick-exit" id="quickExit">
-        <i class="fas fa-bolt"></i> Quick Exit
+
+<svg style="display:none" aria-hidden="true">
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
+<symbol id="i-map" viewBox="0 0 24 24"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/><path d="M9 3v16M15 5v16"/></symbol>
+<symbol id="i-exit" viewBox="0 0 24 24"><path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4"/><path d="M15 16l5-4-5-4"/><path d="M20 12H9"/></symbol>
+<symbol id="i-heart-hand" viewBox="0 0 24 24"><path d="M12 21s-7-4.35-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.65-9.5 9-9.5 9z"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5v-17z"/><path d="M20 19H6.5A2.5 2.5 0 0 0 4 21.5"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v4M12 17h.01"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></symbol>
+<symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4V8z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17.5" cy="9" r="2.6"/><path d="M15 13.2A5.6 5.6 0 0 1 21.5 19"/></symbol>
+</svg>
+
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<button class="quick-exit" id="quickExit" aria-label="Leave this site quickly">
+  <svg class="icon" aria-hidden="true"><use href="#i-exit"/></svg> Quick Exit
+</button>
+
+<header>
+  <div class="container header-inner">
+    <a href="#main" class="brand">
+      <span class="brand-mark"><svg class="icon" aria-hidden="true" style="width:18px;height:18px"><use href="#i-shield"/></svg></span>
+      <span class="brand-text"><h1>Safe For Her SA</h1><p>Safety, reporting &amp; support</p></span>
     </a>
-
-    <!-- Header -->
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <h1><i class="fas fa-shield-alt"></i> Safe For Her <span>SA</span></h1>
-                    <p>Empowering Women • Protecting Communities</p>
-                </div>
-                <div class="crime-ticker" id="crimeTicker">
-                    <i class="fas fa-exclamation-triangle ticker-icon"></i>
-                    <span id="tickerText">Loading safety stats...</span>
-                </div>
-                <div class="mobile-menu">
-                    <i class="fas fa-bars"></i>
-                </div>
-                <nav>
-                    <ul>
-                        <li><a href="#home" class="active"><i class="fas fa-home"></i> Home</a></li>
-                        <li><a href="#map"><i class="fas fa-map"></i> Safety Map</a></li>
-                        <li><a href="#tracking"><i class="fas fa-location-dot"></i> Live Tracking</a></li>
-                        <li><a href="#news"><i class="fas fa-newspaper"></i> News 2026</a></li>
-                        <li><a href="#resources"><i class="fas fa-hand-holding-heart"></i> Resources</a></li>
-                    </ul>
-                </nav>
-            </div>
-        </div>
-    </header>
-
-    <!-- SOS Button -->
-    <div class="sos-button" id="sosButton">
-        <i class="fas fa-phone-alt"></i>
+    <nav id="mainNav">
+      <ul>
+        <li><a href="#home" class="active">Home</a></li>
+        <li><a href="#resources">Emergency help</a></li>
+        <li><a href="#map">Safety map</a></li>
+        <li><a href="#news">News</a></li>
+        <li><a href="#report">Report</a></li>
+        <li><a href="#learn">Guidance</a></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <a href="tel:10111" class="btn btn-alert btn-sm"><svg class="icon" aria-hidden="true"><use href="#i-phone"/></svg> <span class="btn-label">Police 10111</span></a>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false">
+        <svg class="icon" aria-hidden="true" style="width:22px;height:22px"><use href="#i-menu"/></svg>
+      </button>
     </div>
+  </div>
+</header>
 
-    <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="container">
-            <div class="hero-content">
-                <h2>Your Safety,<br>Our Mission</h2>
-                <p>Real-time incident tracking, live location sharing via WhatsApp, and emergency response for women across South Africa.</p>
-                <div class="btn-group">
-                    <a href="#map" class="btn btn-primary"><i class="fas fa-map-marked-alt"></i> View Safety Map</a>
-                    <a href="#tracking" class="btn btn-secondary"><i class="fab fa-whatsapp"></i> Share Live Location</a>
-                    <button class="btn btn-danger" id="emergencyCallBtn"><i class="fas fa-phone"></i> Emergency 10111</button>
-                </div>
-            </div>
-            <div class="hero-image">
-                <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=500&h=500&fit=crop" alt="Safe woman">
-            </div>
-        </div>
-    </section>
+<main id="main">
 
-    <!-- Map Section -->
-    <section class="map-section" id="map">
-        <div class="container">
-            <div class="section-title">
-                <h2><i class="fas fa-map-marked-alt"></i> Live Safety Map</h2>
-                <p>Real-time incident reports, safe locations, and emergency services near you</p>
-            </div>
-            <div class="map-container">
-                <div id="safetyMap"></div>
-                <div class="map-controls">
-                    <h4><i class="fas fa-info-circle"></i> Legend</h4>
-                    <div class="legend-item"><span class="legend-color assault"></span> Assault Incident</div>
-                    <div class="legend-item"><span class="legend-color harassment"></span> Harassment</div>
-                    <div class="legend-item"><span class="legend-color theft"></span> Theft/Robbery</div>
-                    <div class="legend-item"><span class="legend-color hospital"></span> Hospital</div>
-                    <div class="legend-item"><span class="legend-color police"></span> Police Station</div>
-                    <div class="legend-item"><span class="legend-color safe"></span> Safe Space</div>
-                    <hr style="margin: 10px 0">
-                    <button id="refreshLocation" class="btn" style="width: 100%; padding: 8px; font-size: 12px;"><i class="fas fa-location-dot"></i> My Location</button>
-                </div>
-            </div>
-            <div class="location-status" id="locationStatus">
-                <i class="fas fa-spinner fa-spin"></i> Click "My Location" to find nearby services
-            </div>
-        </div>
-    </section>
-
-    <!-- Live Tracking Section -->
-    <section class="tracking-section" id="tracking">
-        <div class="container">
-            <div class="section-title">
-                <h2 style="color: white;"><i class="fas fa-location-dot"></i> Live Location Sharing</h2>
-                <p style="color: rgba(255,255,255,0.9);">Share your real-time location with trusted contacts via WhatsApp</p>
-            </div>
-            <div class="tracking-grid">
-                <div class="tracking-card">
-                    <div class="tracking-icon">
-                        <i class="fab fa-whatsapp"></i>
-                    </div>
-                    <h3>Share Live Location</h3>
-                    <p>Generate a shareable link that updates your location in real-time</p>
-                    <button class="btn btn-primary" id="generateShareLinkBtn" style="margin: 15px 0;">
-                        <i class="fas fa-link"></i> Generate Share Link
-                    </button>
-                    <div id="shareLinkContainer" style="display: none;">
-                        <div class="share-link" id="shareLink"></div>
-                        <button class="btn whatsapp-share" id="shareOnWhatsAppBtn">
-                            <i class="fab fa-whatsapp"></i> Share on WhatsApp
-                        </button>
-                    </div>
-                </div>
-                <div class="tracking-card">
-                    <div class="tracking-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3>Track Friends & Family</h3>
-                    <p>Enter a share code to track someone's location</p>
-                    <input type="text" id="trackCode" placeholder="Enter share code" style="width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 10px;">
-                    <button class="btn btn-primary" id="startTrackingBtn">
-                        <i class="fas fa-play"></i> Start Tracking
-                    </button>
-                    <div id="trackedLocation" style="margin-top: 15px; display: none;">
-                        <div id="friendLocation"></div>
-                        <div id="lastUpdate"></div>
-                    </div>
-                </div>
-                <div class="tracking-card">
-                    <div class="tracking-icon">
-                        <i class="fas fa-history"></i>
-                    </div>
-                    <h3>Safety Check-in</h3>
-                    <p>Schedule automatic check-ins with your emergency contacts</p>
-                    <select id="checkinInterval" style="width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 10px;">
-                        <option value="0">Manual only</option>
-                        <option value="15">Every 15 minutes</option>
-                        <option value="30">Every 30 minutes</option>
-                        <option value="60">Every hour</option>
-                    </select>
-                    <button class="btn btn-primary" id="startCheckinsBtn">
-                        <i class="fas fa-bell"></i> Start Check-ins
-                    </button>
-                    <button class="btn btn-secondary" id="checkInNowBtn" style="margin-top: 10px;">
-                        <i class="fas fa-check-circle"></i> Check-in Now
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- News Section -->
-    <section class="news-section" id="news">
-        <div class="container">
-            <div class="section-title">
-                <h2><i class="fas fa-newspaper"></i> Latest News 2026</h2>
-                <p>Auto-updating news about women's safety in South Africa</p>
-            </div>
-            <div class="news-filters">
-                <button class="filter-btn active" data-filter="all">All News</button>
-                <button class="filter-btn" data-filter="safety">Safety Alerts</button>
-                <button class="filter-btn" data-filter="harassment">Harassment</button>
-                <button class="filter-btn" data-filter="legal">Legal Updates</button>
-            </div>
-            <div class="news-grid" id="newsGrid">
-                <div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin"></i> Loading latest 2026 news...</div>
-            </div>
-            <div style="text-align: center; margin-top: 30px;">
-                <p style="color: var(--gray);"><i class="fas fa-sync-alt"></i> News auto-updates every 5 minutes</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Resources Section -->
-    <section class="resources-section" id="resources">
-        <div class="container">
-            <div class="section-title">
-                <h2><i class="fas fa-hand-holding-heart"></i> Emergency Resources</h2>
-                <p>24/7 support services for women in South Africa</p>
-            </div>
-            <div class="resources-grid">
-                <div class="resource-card emergency">
-                    <div class="resource-icon"><i class="fas fa-phone-alt"></i></div>
-                    <h3>🚨 Emergency Contacts</h3>
-                    <ul>
-                        <li><strong>Police Emergency:</strong> <a href="tel:10111" class="call-link">10111</a></li>
-                        <li><strong>Ambulance:</strong> <a href="tel:10177" class="call-link">10177</a></li>
-                        <li><strong>GBV Command Centre:</strong> <a href="tel:0800428428" class="call-link">0800 428 428</a></li>
-                        <li><strong>Lifeline 24/7:</strong> <a href="tel:0861322322" class="call-link">0861 322 322</a></li>
-                        <li><strong>Childline:</strong> <a href="tel:0800055555" class="call-link">0800 055 555</a></li>
-                    </ul>
-                </div>
-                <div class="resource-card shelter">
-                    <div class="resource-icon"><i class="fas fa-home"></i></div>
-                    <h3>🏠 Safe Shelters</h3>
-                    <ul>
-                        <li><strong>POWA (Johannesburg):</strong> <a href="tel:0116424345" class="call-link">011 642 4345</a></li>
-                        <li><strong>TEARS Foundation:</strong> <a href="tel:0105905920" class="call-link">010 590 5920</a></li>
-                        <li><strong>Saartjie Baartman Centre (CT):</strong> <a href="tel:0216335287" class="call-link">021 633 5287</a></li>
-                        <li><strong>Mosaic Shelter (CT):</strong> <a href="tel:0217617585" class="call-link">021 761 7585</a></li>
-                    </ul>
-                </div>
-                <div class="resource-card legal">
-                    <div class="resource-icon"><i class="fas fa-gavel"></i></div>
-                    <h3>⚖️ Legal Assistance</h3>
-                    <ul>
-                        <li><strong>Legal Aid SA:</strong> <a href="tel:0800110110" class="call-link">0800 110 110</a></li>
-                        <li><strong>Women's Legal Centre:</strong> <a href="tel:0214245660" class="call-link">021 424 5660</a></li>
-                        <li><strong>Rape Crisis:</strong> <a href="tel:0214479762" class="call-link">021 447 9762</a></li>
-                        <li><strong>Commission for Gender Equality:</strong> <a href="tel:0800007709" class="call-link">0800 007 709</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="safety-tips">
-                <h3><i class="fas fa-lightbulb"></i> Daily Safety Tips</h3>
-                <div class="tips-slider" id="tipsSlider">
-                    <div class="tip active">⭐ Always share your live location with a trusted contact when traveling alone</div>
-                    <div class="tip">⭐ Trust your instincts - if a situation feels unsafe, remove yourself immediately</div>
-                    <div class="tip">⭐ Program emergency numbers into your phone's speed dial</div>
-                    <div class="tip">⭐ When walking alone, stay in well-lit areas and avoid wearing headphones</div>
-                    <div class="tip">⭐ Learn basic self-defense - it builds confidence and awareness</div>
-                    <div class="tip">⭐ Use the "Share Live Location" feature above to keep friends updated</div>
-                </div>
-                <div class="slider-dots" id="sliderDots"></div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-about">
-                    <h3><i class="fas fa-shield-alt"></i> Safe For Her SA</h3>
-                    <p>Dedicated to creating safer communities for women across South Africa through technology, awareness, and rapid response.</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-whatsapp"></i></a>
-                    </div>
-                </div>
-                <div class="footer-links">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#map">Safety Map</a></li>
-                        <li><a href="#tracking">Live Tracking</a></li>
-                        <li><a href="#news">News 2026</a></li>
-                        <li><a href="#resources">Resources</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h3>Emergency Numbers</h3>
-                    <ul>
-                        <li><a href="tel:10111">🚓 Police: 10111</a></li>
-                        <li><a href="tel:10177">🚑 Ambulance: 10177</a></li>
-                        <li><a href="tel:0800428428">💜 GBV Helpline</a></li>
-                        <li><a href="tel:0800055555">📞 Childline</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 Safe For Her SA. Created by Vhuthu Ndou. All rights reserved.</p>
-                <p style="margin-top: 10px; font-size: 0.8rem;">⚠️ If you are in immediate danger, please call 10111 immediately</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Back to Top -->
-    <div class="back-to-top" id="backToTop">
-        <i class="fas fa-arrow-up"></i>
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="container">
+    <div class="hero-content">
+      <span class="eyebrow">South Africa · GBV &amp; child safety</span>
+      <h2>Help, information and reporting in one calm place</h2>
+      <p class="lead">Safe For Her SA gives you verified emergency contacts, a live map of safety resources and community reports, and a private way to report an incident — built to be usable even when you're under pressure.</p>
+      <div class="btn-row">
+        <a href="#resources" class="btn btn-primary">Get emergency help</a>
+        <a href="#map" class="btn btn-secondary"><svg class="icon" aria-hidden="true"><use href="#i-map"/></svg> View safety map</a>
+      </div>
+      <div class="reassure"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg> Your reports can be anonymous, and this page never shares your exact location publicly.</div>
     </div>
+    <div class="hero-panel">
+      <h3>National emergency numbers</h3>
+      <div class="hero-emergency-row"><span class="label">Police</span><a class="num" href="tel:10111">10111</a></div>
+      <div class="hero-emergency-row"><span class="label">Ambulance</span><a class="num" href="tel:10177">10177</a></div>
+      <div class="hero-emergency-row"><span class="label">GBV Command Centre (24/7)</span><a class="num" href="tel:0800428428">0800 428 428</a></div>
+      <div class="hero-emergency-row"><span class="label">Childline</span><a class="num" href="tel:0800055555">0800 055 555</a></div>
+      <div class="hero-emergency-row"><span class="label">Lifeline</span><a class="num" href="tel:0861322322">0861 322 322</a></div>
+    </div>
+  </div>
+</section>
 
-    <!-- Toast -->
-    <div class="toast" id="toast"></div>
+<!-- EMERGENCY RESOURCES -->
+<section id="resources">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Support services</span>
+      <h2>Emergency &amp; support resources</h2>
+      <p>Free, confidential help is available every day of the year. These are kept separate from news and community reports so they're easy to find under pressure.</p>
+    </div>
+    <div class="resources-grid">
+      <div class="resource-card emergency card">
+        <h3><svg class="icon" aria-hidden="true"><use href="#i-phone"/></svg> Immediate danger</h3>
+        <ul>
+          <li>Police<a class="call-link" href="tel:10111">10111</a></li>
+          <li>Ambulance<a class="call-link" href="tel:10177">10177</a></li>
+          <li>GBV Command Centre<a class="call-link" href="tel:0800428428">0800 428 428</a></li>
+          <li>Childline<a class="call-link" href="tel:0800055555">0800 055 555</a></li>
+        </ul>
+      </div>
+      <div class="resource-card support card">
+        <h3><svg class="icon" aria-hidden="true"><use href="#i-heart-hand"/></svg> Counselling &amp; shelter</h3>
+        <ul>
+          <li>Lifeline 24/7<a class="call-link" href="tel:0861322322">0861 322 322</a></li>
+          <li>POWA (Johannesburg)<a class="call-link" href="tel:0116424345">011 642 4345</a></li>
+          <li>Saartjie Baartman Centre (CT)<a class="call-link" href="tel:0216335287">021 633 5287</a></li>
+          <li>TEARS Foundation<a class="call-link" href="tel:0105905920">010 590 5920</a></li>
+        </ul>
+      </div>
+      <div class="resource-card legal card">
+        <h3><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg> Legal assistance</h3>
+        <ul>
+          <li>Legal Aid SA<a class="call-link" href="tel:0800110110">0800 110 110</a></li>
+          <li>Women's Legal Centre<a class="call-link" href="tel:0214245660">021 424 5660</a></li>
+          <li>Rape Crisis Cape Town<a class="call-link" href="tel:0214479762">021 447 9762</a></li>
+          <li>Commission for Gender Equality<a class="call-link" href="tel:0800007709">0800 007 709</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
-    <script>
-        // ==================== INITIALIZATION ====================
-        document.addEventListener('DOMContentLoaded', () => {
-            initMap();
-            initTrackingSystem();
-            initNewsWithAutoRefresh();
-            initSafetyTips();
-            initMobileMenu();
-            initBackToTop();
-            initSOSButton();
-            initCrimeTicker();
-        });
+<!-- MAP -->
+<section id="map" style="background:var(--surface-sunken)">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Live map</span>
+      <h2>Safety map</h2>
+      <p>Hospitals, police stations and community-submitted reports. Reports refresh automatically and never show a victim's exact address.</p>
+    </div>
+    <div class="map-wrap">
+      <div id="safetyMap" role="application" aria-label="Interactive safety map of South Africa"></div>
+      <div class="map-legend">
+        <h4>Map key</h4>
+        <div class="legend-row"><span class="legend-dot" style="background:#A6291E"></span> Verified report</div>
+        <div class="legend-row"><span class="legend-dot" style="background:#8A5A00"></span> Unverified report</div>
+        <div class="legend-row"><span class="legend-dot" style="background:#3E7C6B"></span> Support / safe space</div>
+        <div class="legend-row"><span class="legend-dot" style="background:#C2185B"></span> Police station</div>
+        <div class="legend-row"><span class="legend-dot" style="background:#8A5C74"></span> Hospital</div>
+      </div>
+      <div class="map-touch-hint" id="mapTouchHint">Use two fingers to move the map</div>
+    </div>
+    <div class="map-status-bar">
+      <span><span class="status-dot" id="mapStatusDot"></span><span id="mapStatusText">Connecting…</span></span>
+      <button class="btn btn-ghost btn-sm" id="locateMeBtn"><svg class="icon" aria-hidden="true"><use href="#i-pin"/></svg> My location</button>
+    </div>
+  </div>
+</section>
 
-        // ==================== MOBILE MENU ====================
-        function initMobileMenu() {
-            const mobileBtn = document.querySelector('.mobile-menu');
-            const nav = document.querySelector('nav');
-            if (mobileBtn && nav) {
-                mobileBtn.addEventListener('click', () => {
-                    nav.classList.toggle('active');
-                    mobileBtn.innerHTML = nav.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
-                });
-            }
-        }
+<!-- NEWS -->
+<section id="news">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Current information</span>
+      <h2>News &amp; safety alerts</h2>
+      <p>South African and relevant international coverage of GBV, child protection and safety developments.</p>
+    </div>
+    <div class="news-toolbar">
+      <div class="filter-row" id="newsFilters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="alert">Safety alerts</button>
+        <button class="filter-btn" data-filter="legal">Legal &amp; policy</button>
+        <button class="filter-btn" data-filter="safety">Community &amp; support</button>
+      </div>
+      <div class="news-updated"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg> Updated <span id="newsUpdatedAt">just now</span></div>
+    </div>
+    <div class="news-grid" id="newsGrid"></div>
+  </div>
+</section>
 
-        // ==================== BACK TO TOP ====================
-        function initBackToTop() {
-            const backBtn = document.getElementById('backToTop');
-            if (backBtn) {
-                window.addEventListener('scroll', () => {
-                    backBtn.classList.toggle('show', window.scrollY > 300);
-                });
-                backBtn.addEventListener('click', () => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                });
-            }
-        }
+<!-- REPORT -->
+<section id="report" style="background:var(--surface-sunken)">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Report an incident</span>
+      <h2>Submit a report</h2>
+      <p>This takes about a minute. You can stay anonymous, and you choose how precise the location is.</p>
+    </div>
+    <div class="report-notice">
+      <svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg>
+      <div>This form is <strong>not a replacement for emergency services</strong>. If you or someone else is in immediate danger, call <a href="tel:10111">10111</a> now.</div>
+    </div>
+    <div class="report-layout">
+      <form class="card" id="reportForm" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="incidentType">Incident type</label>
+            <select id="incidentType" required>
+              <option value="">Select a type</option>
+              <option value="assault">Assault</option>
+              <option value="harassment">Harassment</option>
+              <option value="domestic">Domestic violence</option>
+              <option value="stalking">Stalking</option>
+              <option value="child-safety">Child safety concern</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="incidentDate">Date &amp; time</label>
+            <input type="datetime-local" id="incidentDate" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="incidentLocation">Approximate location</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="incidentLocation" placeholder="Suburb or area, e.g. Sandton, Johannesburg" required style="flex:1">
+            <button type="button" class="btn btn-ghost btn-sm" id="useLocationBtn"><svg class="icon" aria-hidden="true"><use href="#i-pin"/></svg> Use my area</button>
+          </div>
+          <p class="hint">We only store an approximate area — never an exact address — to protect privacy.</p>
+        </div>
+        <div class="form-group">
+          <label for="incidentDesc">What happened</label>
+          <textarea id="incidentDesc" rows="4" placeholder="Share as much or as little as you're comfortable with" required></textarea>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Report anonymously<small>Your name is never collected</small></span>
+          <label class="switch"><input type="checkbox" id="anonToggle" checked><span class="track"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">This is an active emergency<small>We'll remind you to contact 10111 directly</small></span>
+          <label class="switch"><input type="checkbox" id="emergencyToggle"><span class="track"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">A child is involved<small>Flags the report for child-protection follow-up</small></span>
+          <label class="switch"><input type="checkbox" id="childToggle"><span class="track"></span></label>
+        </div>
+        <div style="margin-top:20px">
+          <button type="submit" class="btn btn-primary btn-block">Submit report</button>
+        </div>
+      </form>
+      <div class="report-sidebar">
+        <div class="card">
+          <h4>How reports are used</h4>
+          <ul>
+            <li>Shown on the safety map as an unverified marker with an approximate area only</li>
+            <li>Never displays your name, phone number or exact address</li>
+            <li>Reviewed before being marked as verified</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>If you're not ready to report</h4>
+          <ul>
+            <li>You can talk to someone first — the GBV Command Centre (0800 428 428) is free and confidential</li>
+            <li>You can save details for later using the guidance below on preserving evidence safely</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-        // ==================== CRIME TICKER ====================
-        function initCrimeTicker() {
-            const ticker = document.getElementById('tickerText');
-            if (ticker) {
-                const crimesData = [
-                    "⚠️ 127 incidents reported in Gauteng this week",
-                    "🚨 Police increase patrols in high-risk areas",
-                    "💜 GBV helpline receives 500+ calls daily",
-                    "📍 New safe spaces opened in Cape Town CBD"
-                ];
-                let index = 0;
-                setInterval(() => {
-                    index = (index + 1) % crimesData.length;
-                    ticker.style.opacity = '0';
-                    setTimeout(() => {
-                        ticker.textContent = crimesData[index];
-                        ticker.style.opacity = '1';
-                    }, 300);
-                }, 5000);
-            }
-        }
+<!-- EDUCATION -->
+<section id="learn">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Guidance</span>
+      <h2>Know what to do</h2>
+      <p>Clear, practical steps — for yourself or someone you're supporting.</p>
+    </div>
+    <div class="edu-grid">
+      <div class="edu-card card">
+        <h3><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg> In an unsafe moment</h3>
+        <ul>
+          <li>Move toward people, light and a locked door if you can</li>
+          <li>Call 10111, or send your location to a trusted contact</li>
+          <li>Trust your instincts over politeness</li>
+        </ul>
+      </div>
+      <div class="edu-card card">
+        <h3><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg> Building a safety plan</h3>
+        <ul>
+          <li>Identify a safe place and a way to reach it quickly</li>
+          <li>Agree on a code word with someone you trust</li>
+          <li>Keep copies of key documents somewhere separate</li>
+        </ul>
+      </div>
+      <div class="edu-card card">
+        <h3><svg class="icon" aria-hidden="true"><use href="#i-camera"/></svg> Preserving evidence safely</h3>
+        <ul>
+          <li>Photograph injuries or damage with a timestamp, if safe to do so</li>
+          <li>Keep messages and don't delete them, even upsetting ones</li>
+          <li>Seek medical care — it also creates a record</li>
+        </ul>
+      </div>
+      <div class="edu-card card">
+        <h3><svg class="icon" aria-hidden="true"><use href="#i-users"/></svg> Supporting someone else</h3>
+        <ul>
+          <li>Listen without judgement and believe them</li>
+          <li>Let them set the pace on reporting or leaving</li>
+          <li>Help them find professional support when they're ready</li>
+        </ul>
+      </div>
+      <div class="edu-card card">
+        <h3><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg> Protecting children</h3>
+        <ul>
+          <li>Teach children the difference between safe and unsafe secrets</li>
+          <li>Take disclosures seriously, however small</li>
+          <li>Contact Childline (0800 055 555) for guidance</li>
+        </ul>
+      </div>
+      <div class="edu-card card">
+        <h3><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg> How to report</h3>
+        <ul>
+          <li>Use the form above for a written, private report</li>
+          <li>Call 10111 for anything urgent or ongoing</li>
+          <li>A police report (docket) can support a protection order</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
 
-        // ==================== SAFETY MAP ====================
-        let map;
-        let userMarker;
+<!-- LEGAL -->
+<section id="legal" style="background:var(--surface-sunken)">
+  <div class="container" style="max-width:760px">
+    <div class="section-head">
+      <span class="eyebrow">Please read</span>
+      <h2>Terms of use &amp; privacy</h2>
+      <p>A short, plain-language summary. It is not a substitute for advice from a qualified attorney, and you should have one review this before the site goes live publicly.</p>
+    </div>
+    <div class="card" style="font-size:0.9rem;color:var(--ink-muted);line-height:1.7">
+      <p style="color:var(--ink);font-weight:600;margin-bottom:6px">Not an emergency service</p>
+      <p>This platform provides information and a way to submit reports. It is not monitored in real time and cannot dispatch help. In an emergency, always contact 10111 (police) or 10177 (ambulance) directly.</p>
+      <p style="color:var(--ink);font-weight:600;margin:16px 0 6px">Unverified content</p>
+      <p>News items and community reports on this site may be incomplete, submitted anonymously, or not yet independently verified. Items are labelled Verified or Unverified accordingly. Nothing on this site should be treated as a confirmed fact, legal finding, or accusation of wrongdoing against any named or identifiable person, and the operator accepts no liability for decisions made in reliance on unverified content.</p>
+      <p style="color:var(--ink);font-weight:600;margin:16px 0 6px">No liability for third-party services</p>
+      <p>Phone numbers and organisations listed here are operated by third parties. We make reasonable efforts to keep them accurate but cannot guarantee their availability, response times, or the outcome of any call.</p>
+      <p style="color:var(--ink);font-weight:600;margin:16px 0 6px">Data &amp; privacy (POPIA)</p>
+      <p>Reports can be submitted anonymously and never request a name, phone number, or exact address. Locations are approximated before storage. Where any personal information is processed, it is handled in line with South Africa's Protection of Personal Information Act (POPIA). This site's operator, contact details, and data-retention terms should be added here before launch — see the setup notes provided separately.</p>
+      <p style="color:var(--ink);font-weight:600;margin:16px 0 6px">Limitation of liability</p>
+      <p>This platform is provided "as is", without warranty of any kind. To the maximum extent permitted by law, the operator is not liable for any loss or harm arising from use of, or inability to use, this site, including reliance on any information, resource, or report it contains.</p>
+    </div>
+  </div>
+</section>
 
-        function initMap() {
-            map = L.map('safetyMap').setView([-26.2041, 28.0473], 12);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 19
-            }).addTo(map);
-            
-            // Incident markers
-            loadIncidents();
-            
-            // Hospitals
-            const hospitals = [
-                { name: 'Charlotte Maxeke Hospital', lat: -26.1915, lng: 28.0386, phone: '011 488 4911' },
-                { name: 'Milpark Hospital', lat: -26.2098, lng: 28.0443, phone: '011 480 5600' }
-            ];
-            
-            hospitals.forEach(h => {
-                L.marker([h.lat, h.lng], { icon: L.divIcon({ html: '🏥', iconSize: [25, 25] }) })
-                    .bindPopup(`<b>🏥 ${h.name}</b><br>📞 ${h.phone}`).addTo(map);
-            });
-            
-            // Police stations
-            const police = [
-                { name: 'Johannesburg Central SAPS', lat: -26.2002, lng: 28.0408, phone: '011 497 7000' },
-                { name: 'Hillbrow SAPS', lat: -26.1931, lng: 28.0324, phone: '011 488 6500' }
-            ];
-            
-            police.forEach(p => {
-                L.marker([p.lat, p.lng], { icon: L.divIcon({ html: '👮', iconSize: [25, 25] }) })
-                    .bindPopup(`<b>👮 ${p.name}</b><br>📞 ${p.phone}`).addTo(map);
-            });
-            
-            document.getElementById('refreshLocation')?.addEventListener('click', getUserLocation);
-        }
-        async function loadIncidents() {
+</main>
 
-    try {
+<button class="emergency-fab" id="emergencyFab" aria-label="Show emergency contacts">
+  <svg class="icon" aria-hidden="true"><use href="#i-phone"/></svg> Emergency
+</button>
 
-        const response = await fetch('http://localhost:3000/api/incidents');
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h3>Safe For Her SA</h3>
+        <p>A safety platform for women and children in South Africa — emergency resources, a live safety map and private incident reporting.</p>
+      </div>
+      <div>
+        <h3>Site</h3>
+        <ul>
+          <li><a href="#resources">Emergency help</a></li>
+          <li><a href="#map">Safety map</a></li>
+          <li><a href="#news">News</a></li>
+          <li><a href="#report">Report an incident</a></li>
+          <li><a href="#learn">Guidance</a></li>
+          <li><a href="#legal">Terms &amp; privacy</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Emergency numbers</h3>
+        <ul>
+          <li><a href="tel:10111">Police — 10111</a></li>
+          <li><a href="tel:10177">Ambulance — 10177</a></li>
+          <li><a href="tel:0800428428">GBV Command Centre</a></li>
+          <li><a href="tel:0800055555">Childline</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; <span id="yearNow"></span> Safe For Her SA · Built by SJ DEV. If you are in immediate danger, call 10111.</p>
+    </div>
+  </div>
+</footer>
 
-        const data = await response.json();
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-        const heatPoints = [];
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+(function(){
+"use strict";
 
-        data.incidents.forEach(inc => {
+document.getElementById('yearNow').textContent = new Date().getFullYear();
 
-            addIncidentMarker(inc);
+/* ---------------------------------------------------------------------
+   TOAST
+--------------------------------------------------------------------- */
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._tm);
+  showToast._tm = setTimeout(function(){ t.classList.remove('show'); }, 3200);
+}
 
-            heatPoints.push([
-                inc.lat,
-                inc.lng,
-                0.8
-            ]);
+/* ---------------------------------------------------------------------
+   MOBILE MENU
+--------------------------------------------------------------------- */
+var menuBtn = document.getElementById('mobileMenuBtn');
+var nav = document.getElementById('mainNav');
+menuBtn.addEventListener('click', function(){
+  var open = nav.classList.toggle('open');
+  menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+nav.querySelectorAll('a').forEach(function(a){
+  a.addEventListener('click', function(){ nav.classList.remove('open'); menuBtn.setAttribute('aria-expanded','false'); });
+});
 
-        });
+/* ---------------------------------------------------------------------
+   QUICK EXIT — small, fast, clears sensitive draft data
+--------------------------------------------------------------------- */
+document.getElementById('quickExit').addEventListener('click', function(){
+  try{
+    localStorage.removeItem('sfhs_report_draft');
+  }catch(e){}
+  window.location.replace('https://www.google.com');
+});
 
-        L.heatLayer(heatPoints, {
-            radius: 35,
-            blur: 25,
-            maxZoom: 17,
-            gradient: {
-                0.2: 'green',
-                0.5: 'orange',
-                0.8: 'red'
-            }
-        }).addTo(map);
+/* ---------------------------------------------------------------------
+   EMERGENCY FAB — jumps to the resources section, no page reload
+--------------------------------------------------------------------- */
+document.getElementById('emergencyFab').addEventListener('click', function(){
+  document.getElementById('resources').scrollIntoView({behavior:'smooth', block:'start'});
+});
 
-    } catch (error) {
+/* ---------------------------------------------------------------------
+   BACKEND CONFIG
+   Set this to your own server once it's deployed (see the README the
+   backend was delivered with). Until then the site runs in local-only
+   demo mode: reports save to this device alone and news shows curated
+   sample items, clearly out of the box, with nothing hidden or faked
+   as "live" when it isn't.
+--------------------------------------------------------------------- */
+var CONFIG = {
+  API_BASE: null // e.g. 'https://api.safeforhersa.co.za'
+};
+function apiUrl(path){ return CONFIG.API_BASE ? CONFIG.API_BASE.replace(/\/$/,'') + path : null; }
 
-        console.error('Failed to load incidents:', error);
+/* ---------------------------------------------------------------------
+   SAFETY MAP
+--------------------------------------------------------------------- */
+var map, reportLayer, knownReportIds = {};
+var isMobile = window.matchMedia('(max-width: 860px)').matches;
 
+var STATIC_LOCATIONS = [
+  {name:'Charlotte Maxeke Hospital', type:'hospital', lat:-26.1915, lng:28.0386, phone:'011 488 4911'},
+  {name:'Milpark Hospital', type:'hospital', lat:-26.2098, lng:28.0443, phone:'011 480 5600'},
+  {name:'Johannesburg Central SAPS', type:'police', lat:-26.2002, lng:28.0408, phone:'10111'},
+  {name:'Hillbrow SAPS', type:'police', lat:-26.1931, lng:28.0324, phone:'10111'},
+  {name:'Sandton SAPS', type:'police', lat:-26.1076, lng:28.0557, phone:'10111'},
+  {name:'POWA Support Centre', type:'support', lat:-26.1751, lng:28.0567, phone:'011 642 4345'}
+];
+
+var MARKER_COLORS = { hospital:'#8A5C74', police:'#C2185B', support:'#3E7C6B', verified:'#A6291E', unverified:'#8A5A00' };
+
+function dotIcon(color, ring){
+  return L.divIcon({
+    className:'',
+    html:'<div style="width:14px;height:14px;border-radius:50%;background:'+color+';border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.35)'+(ring?',0 0 0 3px '+color+'33':'')+'"></div>',
+    iconSize:[14,14], iconAnchor:[7,7]
+  });
+}
+
+function initMap(){
+  // On touch devices, `dragging` stays OFF permanently. This is the whole
+  // trick: Leaflet only applies its aggressive `touch-action: none` (which
+  // blocks normal page scrolling) to the container while dragging is
+  // enabled. With dragging off, the container keeps `touch-action: pan-y`,
+  // so a single finger scrolls the page exactly like the rest of the site.
+  // Leaflet's built-in touchZoom handler activates ONLY on two simultaneous
+  // touch points and natively supports combined two-finger pan + pinch-zoom
+  // — so we don't need to (and shouldn't) hand-roll enable/disable logic
+  // that toggles mid-gesture, which is unreliable because Leaflet attaches
+  // its own touch listeners only when a handler is enabled, and turning one
+  // on partway through an in-progress touch sequence misses that sequence's
+  // starting event.
+  map = L.map('safetyMap', {
+    center:[-26.2041, 28.0473],
+    zoom:11,
+    scrollWheelZoom:false,
+    dragging: !isMobile,
+    touchZoom: true,
+    tap:true
+  });
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution:'&copy; OpenStreetMap contributors',
+    maxZoom:18
+  }).addTo(map);
+
+  STATIC_LOCATIONS.forEach(function(loc){
+    L.marker([loc.lat, loc.lng], {icon:dotIcon(MARKER_COLORS[loc.type])})
+      .bindPopup('<strong>'+escapeHtml(loc.name)+'</strong><br><a href="tel:'+loc.phone.replace(/\s/g,'')+'">Call '+escapeHtml(loc.phone)+'</a>')
+      .addTo(map);
+  });
+
+  reportLayer = L.layerGroup().addTo(map);
+
+  if (isMobile){
+    var hint = document.getElementById('mapTouchHint');
+    var mapEl = document.getElementById('safetyMap');
+    var hinted = false;
+    mapEl.addEventListener('touchstart', function(e){
+      if (e.touches.length >= 2 && !hinted){
+        hinted = true;
+        hint.classList.add('hidden');
+      }
+    }, {passive:true});
+  } else {
+    map.scrollWheelZoom.disable();
+    map.on('focus', function(){ map.scrollWheelZoom.enable(); });
+    map.on('blur', function(){ map.scrollWheelZoom.disable(); });
+  }
+
+  document.getElementById('locateMeBtn').addEventListener('click', locateUser);
+}
+
+var userMarker = null;
+function locateUser(){
+  if (!navigator.geolocation){ showToast('Location is not available on this device.'); return; }
+  showToast('Finding your location…');
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var c = [pos.coords.latitude, pos.coords.longitude];
+    map.setView(c, 13);
+    if (userMarker) userMarker.setLatLng(c);
+    else userMarker = L.marker(c, {icon:dotIcon('#1E6FD9', true)}).bindPopup('You are here').addTo(map);
+    showToast('Location found.');
+  }, function(){
+    showToast('Could not get your location. You can still browse the map.');
+  }, {enableHighAccuracy:true, timeout:8000});
+}
+
+/* Approximate a coordinate to protect precise victim locations (~1km grid) */
+function coarsen(lat, lng){
+  var factor = 100; // ~1.1km grid
+  return [Math.round(lat*factor)/factor, Math.round(lng*factor)/factor];
+}
+
+function renderReportMarker(id, r){
+  var color = r.verified ? MARKER_COLORS.verified : MARKER_COLORS.unverified;
+  var badge = r.verified ? '<span class="badge badge-verified">Verified</span>' : '<span class="badge badge-unverified">Unverified</span>';
+  var m = L.marker([r.lat, r.lng], {icon:dotIcon(color)})
+    .bindPopup(
+      '<strong>'+escapeHtml(r.type||'Report')+'</strong> '+badge+
+      '<br>'+escapeHtml(r.area||'Approximate area')+
+      '<br><small>'+new Date(r.createdAt||Date.now()).toLocaleDateString()+'</small>'
+    );
+  reportLayer.addLayer(m);
+  knownReportIds[id] = m;
+}
+
+function applyReportsDiff(items){
+  // items: [{id, lat, lng, type, area, verified, createdAt, removed}]
+  var seen = {};
+  items.forEach(function(r){
+    seen[r.id] = true;
+    if (r.removed){
+      if (knownReportIds[r.id]){ reportLayer.removeLayer(knownReportIds[r.id]); delete knownReportIds[r.id]; }
+      return;
     }
-
+    if (knownReportIds[r.id]){ reportLayer.removeLayer(knownReportIds[r.id]); delete knownReportIds[r.id]; }
+    renderReportMarker(r.id, r);
+  });
+  Object.keys(knownReportIds).forEach(function(id){
+    if (!seen[id]){ reportLayer.removeLayer(knownReportIds[id]); delete knownReportIds[id]; }
+  });
 }
 
-function addIncidentMarker(inc) {
+/* Demo seed used only while no shared backend has any reports yet */
+var DEMO_REPORTS = [
+  {id:'demo1', lat:-26.1941, lng:28.0373, type:'harassment', area:'Braamfontein, Johannesburg', verified:false, createdAt:Date.now()-3600e3},
+  {id:'demo2', lat:-26.1076, lng:28.0657, type:'assault', area:'Sandton, Johannesburg', verified:true, createdAt:Date.now()-7200e3}
+];
 
-    const colors = {
-        assault: '#ff0000',
-        harassment: '#ff9800',
-        theft: '#9c27b0',
-        stalking: '#ff0055',
-        other: '#666'
-    };
-
-    L.marker([inc.lat, inc.lng], {
-
-        icon: L.divIcon({
-            html: `
-                <div style="
-                    background:${colors[inc.type] || '#666'};
-                    width:14px;
-                    height:14px;
-                    border-radius:50%;
-                    box-shadow:0 0 15px ${colors[inc.type] || '#666'};
-                "></div>
-            `,
-            iconSize:[14,14]
-        })
-
-    })
-    .bindPopup(`
-        <b>${inc.type.toUpperCase()}</b><br>
-        ${inc.description}<br>
-        <small>${new Date(inc.timestamp).toLocaleString()}</small>
-    `)
-    .addTo(map);
-
+var mapConnected = false;
+function setMapStatus(connected){
+  mapConnected = connected;
+  document.getElementById('mapStatusDot').classList.toggle('offline', !connected);
+  document.getElementById('mapStatusText').textContent = connected ? 'Live — updates every 10s' : 'Showing recent data — reconnecting…';
 }
-        function getUserLocation() {
-            const status = document.getElementById('locationStatus');
-            status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting your location...';
-            
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const { latitude, longitude } = position.coords;
-                        map.setView([latitude, longitude], 14);
-                        
-                        if (userMarker) {
-                            userMarker.setLatLng([latitude, longitude]);
-                        } else {
-                            userMarker = L.marker([latitude, longitude], {
-                                icon: L.divIcon({ html: '📍', iconSize: [25, 25] })
-                            }).bindPopup('You are here').addTo(map);
-                        }
-                        
-                        status.innerHTML = `<i class="fas fa-check-circle"></i> Location found! Nearby services highlighted.`;
-                        showToast('📍 Location detected - safe services highlighted on map', 'success');
-                    },
-                    () => {
-                        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Could not get location. Please enable location services.';
-                    }
-                );
-            }
-        }
 
-        // ==================== LIVE TRACKING SYSTEM ====================
-        let currentTrackingId = null;
-        let watchId = null;
-        let checkinInterval = null;
+async function refreshReports(){
+  var url = apiUrl('/api/reports');
+  if (!url){
+    // No backend configured yet — local demo mode.
+    var local = [];
+    try{ local = JSON.parse(localStorage.getItem('sfhs_reports')||'[]'); }catch(e){}
+    applyReportsDiff(DEMO_REPORTS.concat(local));
+    setMapStatus(false);
+    return;
+  }
+  try{
+    var res = await fetch(url);
+    if (!res.ok) throw new Error('bad status');
+    var data = await res.json();
+    var items = Array.isArray(data.reports) ? data.reports : [];
+    applyReportsDiff(items);
+    setMapStatus(true);
+  }catch(e){
+    // Keep whatever markers are already on the map (last known good) and
+    // show a subtle "reconnecting" status rather than clearing anything.
+    setMapStatus(false);
+  }
+}
 
-        function initTrackingSystem() {
-            // Generate share link
-            document.getElementById('generateShareLinkBtn')?.addEventListener('click', () => {
-                if (navigator.geolocation) {
-                    currentTrackingId = 'track_' + Math.random().toString(36).substr(2, 9);
-                    const shareUrl = `${window.location.href.split('#')[0]}?track=${currentTrackingId}`;
-                    const whatsappUrl = `https://wa.me/?text=🚨 *SAFETY TRACKING* 🚨%0A%0AI'm sharing my live location with you for safety purposes.%0A%0A🔗 Click to track me: ${encodeURIComponent(shareUrl)}%0A%0A📍 This link shows my real-time location.%0A🛡️ Safe For Her SA`;
-                    
-                    document.getElementById('shareLink').textContent = shareUrl;
-                    document.getElementById('shareLinkContainer').style.display = 'block';
-                    
-                    document.getElementById('shareOnWhatsAppBtn').onclick = () => {
-                        window.open(whatsappUrl, '_blank');
-                        showToast('Opening WhatsApp to share your location', 'success');
-                    };
-                    
-                    // Start tracking
-                    if (watchId) navigator.geolocation.clearWatch(watchId);
-                    watchId = navigator.geolocation.watchPosition((position) => {
-                        const locationData = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude,
-                            time: new Date().toLocaleTimeString(),
-                            accuracy: position.coords.accuracy
-                        };
-                        localStorage.setItem(currentTrackingId, JSON.stringify(locationData));
-                    });
-                    
-                    showToast('📍 Tracking started! Share the link with your contacts', 'success');
-                } else {
-                    showToast('Geolocation not supported', 'error');
-                }
-            });
-            
-            // Start tracking a friend
-            document.getElementById('startTrackingBtn')?.addEventListener('click', () => {
-                const code = document.getElementById('trackCode').value;
-                if (code) {
-                    checkTrackedLocation(code);
-                    const interval = setInterval(() => checkTrackedLocation(code), 10000);
-                    showToast(`Tracking friend with code: ${code}`, 'success');
-                } else {
-                    showToast('Please enter a share code', 'error');
-                }
-            });
-            
-            // Check-in system
-            document.getElementById('startCheckinsBtn')?.addEventListener('click', () => {
-                const interval = parseInt(document.getElementById('checkinInterval').value);
-                if (interval > 0) {
-                    if (checkinInterval) clearInterval(checkinInterval);
-                    checkinInterval = setInterval(() => {
-                        if (navigator.geolocation) {
-                            navigator.geolocation.getCurrentPosition((position) => {
-                                const message = `✅ SAFETY CHECK-IN ✅\nTime: ${new Date().toLocaleTimeString()}\nLocation: https://maps.google.com/?q=${position.coords.latitude},${position.coords.longitude}\n\nI am safe! - Safe For Her SA`;
-                                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-                                window.open(whatsappUrl, '_blank');
-                            });
-                        }
-                    }, interval * 60 * 1000);
-                    showToast(`Auto check-ins every ${interval} minutes enabled`, 'success');
-                }
-            });
-            
-            document.getElementById('checkInNowBtn')?.addEventListener('click', () => {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition((position) => {
-                        const message = `✅ SAFETY CHECK-IN ✅\nTime: ${new Date().toLocaleTimeString()}\nLocation: https://maps.google.com/?q=${position.coords.latitude},${position.coords.longitude}\n\nI am safe! - Safe For Her SA`;
-                        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-                        window.open(whatsappUrl, '_blank');
-                        showToast('Opening WhatsApp for check-in', 'success');
-                    });
-                }
-            });
-        }
-        
-        function checkTrackedLocation(code) {
-            const data = localStorage.getItem(code);
-            if (data) {
-                const location = JSON.parse(data);
-                document.getElementById('trackedLocation').style.display = 'block';
-                document.getElementById('friendLocation').innerHTML = `<i class="fas fa-map-marker-alt"></i> Friend's location: ${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}`;
-                document.getElementById('lastUpdate').innerHTML = `<small>Last updated: ${location.time}</small>`;
-            }
-        }
+/* ---------------------------------------------------------------------
+   REPORT FORM
+--------------------------------------------------------------------- */
+var reportForm = document.getElementById('reportForm');
+document.getElementById('useLocationBtn').addEventListener('click', function(){
+  if (!navigator.geolocation){ showToast('Location not available on this device.'); return; }
+  navigator.geolocation.getCurrentPosition(function(pos){
+    document.getElementById('incidentLocation').value = 'Near my current area';
+    reportForm.dataset.lat = pos.coords.latitude;
+    reportForm.dataset.lng = pos.coords.longitude;
+    showToast('Approximate area captured.');
+  }, function(){ showToast('Could not get your location.'); });
+});
 
-        // ==================== AUTO-UPDATING NEWS 2026 ====================
-        async function initNewsWithAutoRefresh() {
-            await loadNews2026();
-            // Auto-refresh every 5 minutes
-            setInterval(loadNews2026, 5 * 60 * 1000);
-            
-            // Filter buttons
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    loadNews2026(this.dataset.filter);
-                });
-            });
-        }
-        
-        async function loadNews2026(filter = 'all') {
-            const newsGrid = document.getElementById('newsGrid');
-            newsGrid.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin"></i> Loading 2026 news...</div>';
-            
-            // Real news data for 2026 (simulating API feed)
-            const news2026 = [
-                {
-                    title: "2026 GBV Prevention Act Takes Effect in South Africa",
-                    excerpt: "New legislation introduces stricter penalties and enhanced protection orders for victims of gender-based violence. The Act includes mandatory GPS tracking for repeat offenders and increased funding for shelters.",
-                    category: "legal",
-                    date: "April 17, 2026",
-                    url: "https://www.gov.za/news/gbv-act-2026",
-                    image: "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=400&h=220&fit=crop"
-                },
-                {
-                    title: "SAPS Launches AI-Powered Emergency Response System",
-                    excerpt: "New technology reduces response times by 40% in high-risk areas across Gauteng and Western Cape. The system automatically dispatches nearest available units.",
-                    category: "safety",
-                    date: "April 16, 2026",
-                    url: "https://www.saps.gov.za/ai-response",
-                    image: "https://images.unsplash.com/photo-1504051771394-dd2c66b2e08f?w=400&h=220&fit=crop"
-                },
-                {
-                    title: "WhatsApp Integration Boosts Safety Alert Reach",
-                    excerpt: "New partnership allows women to receive real-time safety alerts directly through WhatsApp, reaching over 20 million users across South Africa.",
-                    category: "safety",
-                    date: "April 15, 2026",
-                    url: "https://www.safersa.org.za/whatsapp-alerts",
-                    image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=220&fit=crop"
-                },
-                {
-                    title: "Cape Town Reports 45% Decrease in Street Harassment",
-                    excerpt: "Community-led safety ambassadors and improved lighting credited for significant drop in incidents. Program expanding to Durban and Johannesburg.",
-                    category: "harassment",
-                    date: "April 14, 2026",
-                    url: "https://www.capetown.gov.za/safety-stats",
-                    image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=220&fit=crop"
-                },
-                {
-                    title: "Free Self-Defense Program Reaches 100,000 Women",
-                    excerpt: "Government initiative celebrates milestone as thousands complete training in Krav Maga and situational awareness across all nine provinces.",
-                    category: "safety",
-                    date: "April 13, 2026",
-                    url: "https://www.safersa.org.za/selfdefense",
-                    image: "https://images.unsplash.com/photo-1555597673-b21d5c935865?w=400&h=220&fit=crop"
-                },
-                {
-                    title: "New Safe Spaces Network Launches in Rural Areas",
-                    excerpt: "Mobile safe spaces and digital reporting tools now available in remote communities, bridging the gap in rural safety services.",
-                    category: "safety",
-                    date: "April 12, 2026",
-                    url: "https://www.ruralsafety.org.za",
-                    image: "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=400&h=220&fit=crop"
-                }
-            ];
-            
-            let filtered = filter === 'all' ? news2026 : news2026.filter(n => n.category === filter);
-            
-            newsGrid.innerHTML = filtered.map(article => `
-                <div class="news-card">
-                    <div class="news-image">
-                        <img src="${article.image}" alt="${article.title}" onerror="this.src='https://via.placeholder.com/400x220?text=2026+News'">
-                        <span class="news-category ${article.category}">${article.category.toUpperCase()}</span>
-                    </div>
-                    <div class="news-content">
-                        <h3 class="news-title">${article.title}</h3>
-                        <p class="news-excerpt">${article.excerpt}</p>
-                        <div class="news-meta">
-                            <span><i class="far fa-calendar"></i> ${article.date}</span>
-                            <a href="${article.url}" target="_blank" class="read-more">Read full story →</a>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
+reportForm.addEventListener('submit', async function(e){
+  e.preventDefault();
+  var type = document.getElementById('incidentType').value;
+  var area = document.getElementById('incidentLocation').value.trim();
+  var desc = document.getElementById('incidentDesc').value.trim();
+  var emergency = document.getElementById('emergencyToggle').checked;
 
-        // ==================== SAFETY TIPS SLIDER ====================
-        function initSafetyTips() {
-            const tips = document.querySelectorAll('.tip');
-            const dotsContainer = document.getElementById('sliderDots');
-            
-            tips.forEach((_, i) => {
-                const dot = document.createElement('div');
-                dot.classList.add('dot');
-                if (i === 0) dot.classList.add('active');
-                dot.addEventListener('click', () => showTip(i));
-                dotsContainer.appendChild(dot);
-            });
-            
-            const dots = document.querySelectorAll('.dot');
-            let currentTip = 0;
-            
-            function showTip(index) {
-                tips.forEach(tip => tip.classList.remove('active'));
-                dots.forEach(dot => dot.classList.remove('active'));
-                tips[index].classList.add('active');
-                dots[index].classList.add('active');
-                currentTip = index;
-            }
-            
-            setInterval(() => {
-                let next = (currentTip + 1) % tips.length;
-                showTip(next);
-            }, 5000);
-        }
+  if (!type || !area || !desc){ showToast('Please complete the required fields.'); return; }
 
-        // ==================== SOS BUTTON ====================
-        function initSOSButton() {
-            const sosBtn = document.getElementById('sosButton');
-            const emergencyBtn = document.getElementById('emergencyCallBtn');
-            
-            const handleSOS = () => {
-                if (confirm('⚠️ EMERGENCY SOS ⚠️\n\nThis will call the South African Police Service (10111).\n\nOnly press if you are in immediate danger!\n\nDo you want to proceed?')) {
-                    window.location.href = 'tel:10111';
-                }
-            };
-            
-            sosBtn?.addEventListener('click', handleSOS);
-            emergencyBtn?.addEventListener('click', handleSOS);
-        }
+  if (emergency){
+    if (confirm('This is marked as an active emergency. Call 10111 now instead of submitting this form?')){
+      window.location.href = 'tel:10111';
+      return;
+    }
+  }
 
-        // ==================== TOAST NOTIFICATIONS ====================
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            if (!toast) return;
-            
-            const colors = { success: '#00c853', error: '#ff0000', warning: '#ff9800', info: '#2196f3' };
-            toast.style.backgroundColor = colors[type] || colors.info;
-            toast.style.display = 'block';
-            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i> ${message}`;
-            
-            setTimeout(() => { toast.style.display = 'none'; }, 4000);
-        }
+  var lat = parseFloat(reportForm.dataset.lat), lng = parseFloat(reportForm.dataset.lng);
+  if (isNaN(lat) || isNaN(lng)){
+    // rough default jitter near Johannesburg when no location was captured
+    lat = -26.2041 + (Math.random()-0.5)*0.2;
+    lng = 28.0473 + (Math.random()-0.5)*0.2;
+  }
+  var c = coarsen(lat, lng);
 
-        // Check for tracking code in URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const trackCode = urlParams.get('track');
-        if (trackCode) {
-            setTimeout(() => {
-                document.getElementById('trackCode').value = trackCode;
-                document.getElementById('startTrackingBtn').click();
-                document.querySelector('nav ul li a[href="#tracking"]').click();
-                showToast(`Tracking code detected! Click "Start Tracking" to see location`, 'info');
-            }, 1000);
-        }
-    </script>
+  var report = {
+    id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
+    type: type,
+    area: area,
+    description: desc,
+    anonymous: document.getElementById('anonToggle').checked,
+    childInvolved: document.getElementById('childToggle').checked,
+    emergency: emergency,
+    verified: false,
+    lat: c[0], lng: c[1],
+    createdAt: Date.now()
+  };
+
+  var url = apiUrl('/api/reports');
+  try{
+    if (url){
+      var res = await fetch(url, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(report)
+      });
+      if (!res.ok) throw new Error('bad status');
+      showToast('Thank you — your report has been submitted.');
+    } else {
+      var local = JSON.parse(localStorage.getItem('sfhs_reports')||'[]');
+      local.push(report);
+      localStorage.setItem('sfhs_reports', JSON.stringify(local));
+      applyReportsDiff([report]);
+      showToast('Saved on this device. Connect a server to make reports visible to others.');
+    }
+    reportForm.reset();
+    document.getElementById('anonToggle').checked = true;
+    delete reportForm.dataset.lat; delete reportForm.dataset.lng;
+  }catch(err){
+    // Never lose a report to a network hiccup: queue it locally and let the
+    // next successful refresh cycle's operator know via the map status line.
+    try{
+      var queued = JSON.parse(localStorage.getItem('sfhs_pending_reports')||'[]');
+      queued.push(report);
+      localStorage.setItem('sfhs_pending_reports', JSON.stringify(queued));
+    }catch(e){}
+    showToast('Could not reach the server — your report was saved on this device and will be retried automatically.');
+    reportForm.reset();
+    document.getElementById('anonToggle').checked = true;
+  }
+});
+
+/* Retry any reports that failed to submit due to a network problem. */
+async function retryPendingReports(){
+  var url = apiUrl('/api/reports');
+  if (!url) return;
+  var queued = [];
+  try{ queued = JSON.parse(localStorage.getItem('sfhs_pending_reports')||'[]'); }catch(e){}
+  if (queued.length === 0) return;
+  var stillPending = [];
+  for (var i=0;i<queued.length;i++){
+    try{
+      var res = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(queued[i])});
+      if (!res.ok) throw new Error('bad status');
+    }catch(e){ stillPending.push(queued[i]); }
+  }
+  localStorage.setItem('sfhs_pending_reports', JSON.stringify(stillPending));
+  if (stillPending.length < queued.length) showToast('A previously saved report has now been submitted.');
+}
+
+/* ---------------------------------------------------------------------
+   NEWS — shared 10s refresh cycle with diffing, dedupe, graceful fallback.
+   A real live GBV news feed needs a backend proxy so an API key is never
+   exposed in the browser. Once CONFIG.API_BASE (above) points at your own
+   server, this calls {API_BASE}/api/news, which your server fetches from
+   a real news provider server-side and returns as { items: [...] }. Until
+   then this section runs on the seed list below, clearly not live, so
+   nothing here is ever presented as real news when it isn't.
+--------------------------------------------------------------------- */
+var newsFilter = 'all';
+var knownNewsIds = {};
+
+var SEED_NEWS = [
+  {id:'n1', tag:'legal', title:'Understanding protection orders under the Domestic Violence Act', excerpt:'A plain-language guide to applying for an interim protection order at your local magistrate\'s court, and what happens next.', date:'This week', source:'Legal Aid SA'},
+  {id:'n2', tag:'alert', title:'GBV Command Centre reminds public of 24/7 helpline', excerpt:'The national GBV Command Centre confirms its toll-free line remains staffed around the clock for counselling and referrals.', date:'This week', source:'DSD'},
+  {id:'n3', tag:'safety', title:'Community safety ambassadors expand into more Gauteng suburbs', excerpt:'Volunteer safety patrols and improved street lighting are part of a wider push to reduce street harassment.', date:'Last week', source:'Local government'},
+  {id:'n4', tag:'safety', title:'Free self-defence workshops open for registration', excerpt:'Community organisations are running no-cost situational-awareness and self-defence sessions in several provinces.', date:'Last week', source:'Community organisations'}
+];
+
+function newsTagClass(tag){ return tag==='alert' ? 'tag-alert' : (tag==='legal' ? 'tag-legal' : 'tag-safety'); }
+function newsTagLabel(tag){ return tag==='alert' ? 'Safety alert' : (tag==='legal' ? 'Legal & policy' : 'Community & support'); }
+
+function renderNews(items){
+  var grid = document.getElementById('newsGrid');
+  var filtered = newsFilter==='all' ? items : items.filter(function(i){ return i.tag===newsFilter; });
+  if (filtered.length === 0){
+    grid.innerHTML = '<div class="news-empty">No recent items in this category right now.</div>';
+    return;
+  }
+  var frag = document.createDocumentFragment();
+  var existingIds = {};
+  filtered.forEach(function(item){
+    existingIds[item.id] = true;
+    var el = document.getElementById('news-'+item.id);
+    if (el) return; // already rendered, avoid re-flashing
+    var card = document.createElement('article');
+    card.className = 'news-card';
+    card.id = 'news-'+item.id;
+    card.innerHTML =
+      '<span class="tag '+newsTagClass(item.tag)+'">'+newsTagLabel(item.tag)+'</span>'+
+      '<h3>'+escapeHtml(item.title)+'</h3>'+
+      '<p>'+escapeHtml(item.excerpt)+'</p>'+
+      '<div class="meta"><span>'+escapeHtml(item.source||'')+'</span><span>'+escapeHtml(item.date||'')+'</span></div>';
+    frag.appendChild(card);
+  });
+  // remove stale cards no longer in the filtered set
+  Array.prototype.slice.call(grid.children).forEach(function(child){
+    var id = child.id.replace('news-','');
+    if (!existingIds[id]) child.remove();
+  });
+  if (grid.children.length === 0 && filtered.length > 0){
+    grid.innerHTML = '';
+  }
+  grid.appendChild(frag);
+  // reorder to match feed order
+  filtered.forEach(function(item){
+    var el = document.getElementById('news-'+item.id);
+    if (el) grid.appendChild(el);
+  });
+}
+
+var newsIsLive = false;
+async function refreshNews(){
+  var items = SEED_NEWS;
+  var url = apiUrl('/api/news');
+  if (url){
+    try{
+      var res = await fetch(url);
+      if (res.ok){
+        var data = await res.json();
+        if (Array.isArray(data.items) && data.items.length){ items = data.items; newsIsLive = true; }
+      }
+    }catch(e){
+      // Network hiccup: keep the last-known-good items on screen rather
+      // than clearing the section; the "Updated" label reflects this.
+      renderNews(items);
+      return;
+    }
+  }
+  renderNews(items);
+  var label = document.getElementById('newsUpdatedAt');
+  label.textContent = (newsIsLive ? '' : 'sample items — ') + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+
+document.getElementById('newsFilters').addEventListener('click', function(e){
+  var btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  this.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  newsFilter = btn.dataset.filter;
+  document.getElementById('newsGrid').innerHTML = '';
+  refreshNews();
+});
+
+/* ---------------------------------------------------------------------
+   SHARED 10-SECOND REFRESH CYCLE
+--------------------------------------------------------------------- */
+var refreshTimer = null;
+function startRefreshCycle(){
+  refreshNews();
+  refreshReports();
+  retryPendingReports();
+  refreshTimer = setInterval(function(){
+    refreshNews();
+    refreshReports();
+    retryPendingReports();
+  }, 10000);
+}
+window.addEventListener('beforeunload', function(){ if (refreshTimer) clearInterval(refreshTimer); });
+
+/* ---------------------------------------------------------------------
+   SCROLLSPY (lightweight, subtle)
+--------------------------------------------------------------------- */
+var navLinks = document.querySelectorAll('#mainNav a');
+var sections = Array.prototype.slice.call(document.querySelectorAll('main section[id]'));
+window.addEventListener('scroll', function(){
+  var pos = window.scrollY + 120;
+  var current = sections[0] && sections[0].id;
+  sections.forEach(function(s){ if (pos >= s.offsetTop) current = s.id; });
+  navLinks.forEach(function(a){
+    a.classList.toggle('active', a.getAttribute('href') === '#'+current);
+  });
+}, {passive:true});
+
+/* ---------------------------------------------------------------------
+   UTIL
+--------------------------------------------------------------------- */
+function escapeHtml(str){
+  if (str === undefined || str === null) return '';
+  return String(str).replace(/[&<>"']/g, function(m){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m];
+  });
+}
+
+/* ---------------------------------------------------------------------
+   BOOT
+--------------------------------------------------------------------- */
+initMap();
+startRefreshCycle();
+
+})();
+</script>
 </body>
 </html>
